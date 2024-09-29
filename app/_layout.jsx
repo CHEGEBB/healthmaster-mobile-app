@@ -1,9 +1,14 @@
-import { Stack } from "expo-router";
+import { StyleSheet, Text, View } from 'react-native'
+import React from 'react'
 
-export default function RootLayout() {
+const _layout = () => {
   return (
-    <Stack>
-      <Stack.Screen name="index" />
-    </Stack>
-  );
+    <View className="bg-red-400 min-h-screen">
+      <Text>_layout</Text>
+    </View>
+  )
 }
+
+export default _layout
+
+const styles = StyleSheet.create({})
