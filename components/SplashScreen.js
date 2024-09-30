@@ -1,5 +1,7 @@
-import { ImageBackground, StyleSheet, View, Image } from 'react-native';
+import { ImageBackground, StyleSheet, View, Image, Text } from 'react-native';
 import React from 'react';
+import LottieView from 'lottie-react-native';
+
 
 const SplashScreen = () => {
   const image = require('../assets/images/background-1.webp');
@@ -8,8 +10,24 @@ const SplashScreen = () => {
   return (
     <View style={styles.container}>
       <ImageBackground source={image} style={styles.image}>
-        <View style={styles.overlay}>
-          <Image source={logo} style={styles.logo} alt="logo" />
+        <View style={styles.overlay} className="flex-row">
+          <View style={styles.LottieContainer}>
+          <LottieView
+        source={require('../assets/animations/splash-animation.json')} 
+        autoPlay
+        loop
+        style={styles.lottie}
+      />
+  
+        <Text style={styles.text}>HealthMaster</Text>
+        </View>
+        <View style={styles.aboutContainer}>
+          <Text style={styles.aboutText}>
+          Explore a World of Health with <Text style={styles.companyName} className="bg-[#4BE3AC]">
+            Health Master
+          </Text>
+          </Text>
+        </View>
         </View>
       </ImageBackground>
     </View>
@@ -38,4 +56,38 @@ const styles = StyleSheet.create({
     height: 150, 
     resizeMode: 'contain', 
   },
+  text: {
+    color: 'white',
+    fontSize: 30,
+    fontWeight: 'bold',
+  },
+  LottieContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  lottie: {
+    width: 100,
+    height: 100,
+    justifyContent: 'center',
+  },
+  aboutContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  aboutText: {
+    color: 'white',
+    fontSize: 30,
+    fontWeight: 'bold',
+    fontFamily: 'Poppins',
+  },
+  companyName: {
+    fontWeight: 'normal',
+    color:'#4BE3AC'
+  },
+
 });

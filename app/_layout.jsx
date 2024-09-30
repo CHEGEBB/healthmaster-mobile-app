@@ -9,7 +9,7 @@ const _layout = () => {
   useEffect(()=>{
     setTimeout(()=>{
       setIsSplashScreenVisible(false)
-    }, 3000)
+    }, 3000000)
   });
 
   if(isSplashScreenVisible){
