@@ -1,9 +1,43 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, ImageBackground, Animated, StyleSheet, Dimensions } from 'react-native';
 import LottieView from 'lottie-react-native';
-import LinearGradient from 'react-native-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
+
+const AnimatedPhrase = ({ phrases }) => {
+  const fadeAnim = useRef(phrases.map(() => new Animated.Value(0))).current;
+  const [currentIndex, setCurrentIndex] = React.useState(0);
+
+  useEffect(() => {
+    const animate = (index) => {
+      Animated.sequence([
+        Animated.timing(fadeAnim[index], { toValue: 1, duration: 1000, useNativeDriver: true }),
+        Animated.timing(fadeAnim[index], { toValue: 1, duration: 2000, useNativeDriver: true }),
+        Animated.timing(fadeAnim[index], { toValue: 0, duration: 1000, useNativeDriver: true }),
+      ]).start(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % phrases.length);
+      });
+    };
+
+    animate(currentIndex);
+  }, [currentIndex]);
+
+  return (
+    <View style={styles.animatedPhraseContainer}>
+      {phrases.map((phrase, index) => (
+        <Animated.Text
+          key={index}
+          style={[
+            styles.animatedPhrase,
+            { opacity: fadeAnim[index], display: index === currentIndex ? 'flex' : 'none' }
+          ]}
+        >
+          {phrase}
+        </Animated.Text>
+      ))}
+    </View>
+  );
+};
 
 const SplashScreen = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -11,6 +45,7 @@ const SplashScreen = () => {
   const scaleAnim = useRef(new Animated.Value(0.5)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
+  const shimmerAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.parallel([
@@ -52,12 +87,32 @@ const SplashScreen = () => {
         }),
       ])
     ).start();
+
+    Animated.loop(
+      Animated.timing(shimmerAnim, {
+        toValue: 1,
+        duration: 2000,
+        useNativeDriver: false,
+      })
+    ).start();
   }, []);
 
   const spin = rotateAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
   });
+
+  const shimmerTranslate = shimmerAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-width, width],
+  });
+
+  const animatedPhrases = [
+    "Your Health, Your Way",
+    "Empowering Wellness",
+    "Smart Health Decisions",
+    "Medication Reminders"
+  ];
 
   return (
     <View style={styles.container}>
@@ -91,32 +146,27 @@ const SplashScreen = () => {
                 Health Master
               </Animated.Text>
             </View>
-            <Animated.Text style={[styles.subtitle, { opacity: fadeAnim }]}>
-              Where Care and Convenience Converge with{' '}
-              <Text style={styles.highlight}>Health Master</Text>
+            <Animated.Text style={[styles.tagline, { opacity: fadeAnim }]}>
+              Where Care and Convenience Converge
             </Animated.Text>
             
-            <Animated.View style={[styles.featureContainer, { opacity: fadeAnim }]}>
-              <Text style={styles.featureTitle}>Key Features:</Text>
-              <Text style={styles.featureItem}>• 24/7 Virtual Health Assistance</Text>
-              <Text style={styles.featureItem}>• Personalized Health Tracking</Text>
-              <Text style={styles.featureItem}>• Secure Telemedicine Consultations</Text>
-              <Text style={styles.featureItem}>• AI-Powered Health Insights</Text>
-            </Animated.View>
+            <AnimatedPhrase phrases={animatedPhrases} />
           </Animated.View>
 
           <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: pulseAnim }] }}>
             <TouchableOpacity
               onPress={() => alert('Get Started Clicked')}
+              style={styles.buttonContainer}
             >
-              <LinearGradient
-                colors={['#4BE3AC', '#45B3E0']}
-                start={{x: 0, y: 0}}
-                end={{x: 1, y: 0}}
-                style={styles.button}
-              >
+              <View style={styles.button}>
+                <Animated.View style={[
+                  styles.shimmer,
+                  {
+                    transform: [{ translateX: shimmerTranslate }],
+                  }
+                ]} />
                 <Text style={styles.buttonText}>Get Started</Text>
-              </LinearGradient>
+              </View>
             </TouchableOpacity>
           </Animated.View>
         </View>
@@ -143,6 +193,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
+    backgroundColor:'red'
   },
   logoContainer: {
     flexDirection: 'row',
@@ -168,41 +219,49 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginTop:80
   },
-  subtitle: {
+  tagline: {
     color: 'white',
     fontSize: 18,
     textAlign: 'center',
+    marginBottom: 20,
+  },
+  animatedPhraseContainer: {
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 30,
   },
-  highlight: {
+  animatedPhrase: {
     color: '#4BE3AC',
-    fontWeight: 'bold',
-  },
-  featureContainer: {
-    alignItems: 'flex-start',
-    marginBottom: 30,
-  },
-  featureTitle: {
-    color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 10,
+    textAlign: 'center',
   },
-  featureItem: {
-    color: 'white',
-    fontSize: 16,
-    marginBottom: 5,
+  buttonContainer: {
+    overflow: 'hidden',
+    borderRadius: 30,
+    marginBottom: 80,
   },
   button: {
+    backgroundColor: '#4BE3AC',
     paddingVertical: 15,
     paddingHorizontal: 30,
-    borderRadius: 30,
-    bottom: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   buttonText: {
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  shimmer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    opacity: 0.5,
+    backgroundColor: 'white',
   },
 });
 
