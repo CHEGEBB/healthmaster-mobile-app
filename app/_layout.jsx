@@ -33,6 +33,9 @@ const loadFonts = async () => {
     'Raleway-Regular': require('../assets/fonts/Raleway-Regular.ttf'),
     'Raleway-Medium': require('../assets/fonts/Raleway-Medium.ttf'),
     'Raleway-Bold': require('../assets/fonts/Raleway-Bold.ttf'),
+    'Kanit-Regular': require('../assets/fonts/Kanit-Regular.ttf'),
+    'Kanit-Medium': require('../assets/fonts/Kanit-Medium.ttf'),
+    'Kanit-Bold': require('../assets/fonts/Kanit-Bold.ttf'),
   });
 };
 
