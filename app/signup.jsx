@@ -8,6 +8,8 @@ const Signup = () => {
   const [password, setPassword] = useState('');
   const [userName, setUserName] = useState('');
   const shimmerAnim = useRef(new Animated.Value(0)).current;
+  const [isFocused, setIsFocused] =useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
 
 
@@ -40,7 +42,15 @@ const Signup = () => {
           <Text style={styles.title}>Sign Up</Text>
           <Text style={styles.label}>Username</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              isFocused && styles.focusedInput,
+              isHovered && styles.hoveredInput,
+            ]}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
             placeholder="john doe"
             placeholderTextColor="#ccc"
             value={userName}
@@ -48,20 +58,36 @@ const Signup = () => {
           />
           <Text style={styles.label}>Email</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              isFocused && styles.focusedInput,
+              isHovered && styles.hoveredInput,
+              ]}
             placeholder="ex johndoe@gmail.com"
             placeholderTextColor="#ccc"
             value={email}
             onChangeText={setEmail}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
           />
           <Text style={styles.label}>Password</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              isFocused && styles.focusedInput,
+              isHovered && styles.hoveredInput,
+            ]}
             placeholder="Password"
             placeholderTextColor="#ccc"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
           />
           <TouchableOpacity style={styles.button} >
             <Text style={styles.buttonText}>Sign Up</Text>
@@ -95,6 +121,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 20,
+    fontFamily: 'Poppins-Bold',
+    textAlign:'left',
+    alignSelf: 'flex-start', 
   },
   input: {
     width: '100%',
@@ -129,12 +158,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderRadius: 10,
     width:200,
+    top:30,
 
   },
   buttonText: {
     color: 'white',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  focusedInput: {
+    borderColor: '#4BE3AC', 
+    borderWidth: 2,
+  },
+  hoveredInput: {
+    borderColor: '#4BE3AC', 
+
   },
 
 });
