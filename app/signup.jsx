@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ImageBackground, StyleSheet, Text, View, TextInput, TouchableOpacity, Dimensions, Animated } from 'react-native';
+import { ImageBackground, StyleSheet, Text, View, TextInput, TouchableOpacity, Dimensions, Animated, Image } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -8,29 +8,30 @@ const Signup = () => {
   const [password, setPassword] = useState('');
   const [userName, setUserName] = useState('');
   const shimmerAnim = useRef(new Animated.Value(0)).current;
-  const [isFocused, setIsFocused] =useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-
-
+  const [focusedInput, setFocusedInput] = useState(null); 
 
   const shimmerTranslate = shimmerAnim.interpolate({
     inputRange: [0, 1],
     outputRange: [-width, width],
   });
 
-  useEffect(
-    () => {
-      Animated.loop(
-        Animated.timing(shimmerAnim, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: false,
-        })
-      ).start();
-    },
-    [],
-  )
+  useEffect(() => {
+    Animated.loop(
+      Animated.timing(shimmerAnim, {
+        toValue: 1,
+        duration: 2000,
+        useNativeDriver: false,
+      })
+    ).start();
+  }, []);
 
+  const handleFocus = (input) => {
+    setFocusedInput(input);
+  };
+
+  const handleBlur = () => {
+    setFocusedInput(null);
+  };
 
   return (
     <View style={styles.containerSignup}>
@@ -39,18 +40,23 @@ const Signup = () => {
         style={styles.bgImage}
       >
         <View style={styles.overlay}>
+          <View style={styles.logoContainer}>
+            <View>
+            <Image source={require('../assets/images/fav.png') } style={styles.logoImage}/>
+            </View>
+            <View>
+              <Text style={styles.textStyle}>Health Master</Text>
+            </View>
+          </View>
           <Text style={styles.title}>Sign Up</Text>
           <Text style={styles.label}>Username</Text>
           <TextInput
             style={[
               styles.input,
-              isFocused && styles.focusedInput,
-              isHovered && styles.hoveredInput,
+              focusedInput === 'username' && styles.focusedInput,
             ]}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            onFocus={() => handleFocus('username')}
+            onBlur={handleBlur}
             placeholder="john doe"
             placeholderTextColor="#ccc"
             value={userName}
@@ -60,34 +66,28 @@ const Signup = () => {
           <TextInput
             style={[
               styles.input,
-              isFocused && styles.focusedInput,
-              isHovered && styles.hoveredInput,
-              ]}
+              focusedInput === 'email' && styles.focusedInput,
+            ]}
             placeholder="ex johndoe@gmail.com"
             placeholderTextColor="#ccc"
             value={email}
             onChangeText={setEmail}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            onFocus={() => handleFocus('email')}
+            onBlur={handleBlur}
           />
           <Text style={styles.label}>Password</Text>
           <TextInput
             style={[
               styles.input,
-              isFocused && styles.focusedInput,
-              isHovered && styles.hoveredInput,
+              focusedInput === 'password' && styles.focusedInput,
             ]}
             placeholder="Password"
             placeholderTextColor="#ccc"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
+            onFocus={() => handleFocus('password')}
+            onBlur={handleBlur}
           />
           <TouchableOpacity style={styles.button} >
             <Text style={styles.buttonText}>Sign Up</Text>
@@ -107,7 +107,6 @@ const styles = StyleSheet.create({
   bgImage: {
     flex: 1,
     width: width,
-    // height: height,
   },
   overlay: {
     flex: 1,
@@ -115,6 +114,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+  },
+  logoContainer:{
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+    alignSelf:'flex-start',
+    gap:10,
+
+  },
+  logoImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 50,
+    backgroundColor: '#4BE3AC',
+    alignItems: 'left',
+  },
+  textStyle:{
+    fontSize: 20,
+    color: '#fff',
+    fontFamily: 'Sora-Bold',
+    textAlign:'left',
+    alignSelf: 'flex-start',
   },
   title: {
     fontSize: 32,
@@ -145,11 +166,6 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     alignSelf: 'flex-start', 
   },
-  buttonContainer: {
-    overflow: 'hidden',
-    borderRadius: 30,
-    marginBottom: 80,
-  },
   button: {
     backgroundColor: '#4BE3AC',
     paddingVertical: 15,
@@ -159,7 +175,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width:200,
     top:30,
-
   },
   buttonText: {
     color: 'white',
@@ -170,9 +185,4 @@ const styles = StyleSheet.create({
     borderColor: '#4BE3AC', 
     borderWidth: 2,
   },
-  hoveredInput: {
-    borderColor: '#4BE3AC', 
-
-  },
-
 });
