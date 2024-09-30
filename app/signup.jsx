@@ -63,15 +63,9 @@ const Signup = () => {
             onChangeText={setPassword}
             secureTextEntry
           />
-          <View style={styles.button}>
-          <Animated.View style={[
-                  styles.shimmer,
-                  {
-                    transform: [{ translateX: shimmerTranslate }],
-                  }
-                ]} />
-                <Text style={styles.buttonText}>Sign Up</Text>
-          </View>
+          <TouchableOpacity style={styles.button} >
+            <Text style={styles.buttonText}>Sign Up</Text>
+          </TouchableOpacity>
         </View>
       </ImageBackground>
     </View>
@@ -111,20 +105,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     color: '#fff',
   },
-  button: {
-    width: '100%',
-    height: 50,
-    backgroundColor: '#007AFF',
-    borderRadius: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
   label: {
     width: '100%',
     color: '#fff',
@@ -136,4 +116,25 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     alignSelf: 'flex-start', 
   },
+  buttonContainer: {
+    overflow: 'hidden',
+    borderRadius: 30,
+    marginBottom: 80,
+  },
+  button: {
+    backgroundColor: '#4BE3AC',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    width:200,
+
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+
 });
