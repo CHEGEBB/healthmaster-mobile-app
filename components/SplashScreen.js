@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, ImageBackground, Animated, StyleSheet, Dimensions } from 'react-native';
-import LottieView from 'lottie-react-native';
+import { View, Text, TouchableOpacity, ImageBackground, Animated, StyleSheet, Dimensions, Image } from 'react-native';
+// import LottieView from 'lottie-react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -134,12 +134,13 @@ const SplashScreen = () => {
             <View style={styles.logoContainer}>
               <Animated.View style={{ transform: [{ rotate: spin }] }}>
                 <View style={styles.Lott}>
-                  <LottieView
+                  {/* <LottieView
                     source={require('../assets/animations/splash-animation.json')}
                     autoPlay
                     loop
                     style={styles.lottie}
-                  />
+                  /> */}
+                  <Image source={require('../assets/images/fav.png')} style={styles.lottie}/>
                 </View>
               </Animated.View>
               <Animated.Text style={[styles.title, { opacity: fadeAnim }]}>

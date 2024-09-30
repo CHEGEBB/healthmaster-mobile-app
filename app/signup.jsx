@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ImageBackground, StyleSheet, Text, View, TextInput, TouchableOpacity, Dimensions } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { ImageBackground, StyleSheet, Text, View, TextInput, TouchableOpacity, Dimensions, Animated } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -7,6 +7,28 @@ const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [userName, setUserName] = useState('');
+  const shimmerAnim = useRef(new Animated.Value(0)).current;
+
+
+
+  const shimmerTranslate = shimmerAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-width, width],
+  });
+
+  useEffect(
+    () => {
+      Animated.loop(
+        Animated.timing(shimmerAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: false,
+        })
+      ).start();
+    },
+    [],
+  )
+
 
   return (
     <View style={styles.containerSignup}>
@@ -41,9 +63,15 @@ const Signup = () => {
             onChangeText={setPassword}
             secureTextEntry
           />
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Sign Up</Text>
-          </TouchableOpacity>
+          <View style={styles.button}>
+          <Animated.View style={[
+                  styles.shimmer,
+                  {
+                    transform: [{ translateX: shimmerTranslate }],
+                  }
+                ]} />
+                <Text style={styles.buttonText}>Sign Up</Text>
+          </View>
         </View>
       </ImageBackground>
     </View>
@@ -103,8 +131,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 5,
     marginTop: 10,
-    fontWeight: 'bold',
-    fontFamily: 'Kanit-Regular',
+    fontWeight: 'semibold',
+    fontFamily: 'Poppins-Bold',
     textAlign: 'left',
     alignSelf: 'flex-start', 
   },
