@@ -193,7 +193,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
-    backgroundColor:'red'
   },
   logoContainer: {
     flexDirection: 'row',
@@ -205,7 +204,7 @@ const styles = StyleSheet.create({
     width:55,
     height:55,
     padding:4,
-    marginTop:80,
+    marginTop:120,
     borderRadius:50,
   },
   lottie: {
@@ -217,7 +216,7 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 'bold',
     marginLeft: 10,
-    marginTop:80
+    marginTop:120
   },
   tagline: {
     color: 'white',

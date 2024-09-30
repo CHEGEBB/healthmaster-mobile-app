@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import * as Font from 'expo-font';
 import SplashScreen from '../components/SplashScreen';
-import Index from './index';
+import Signup from './signup';
 
 // Load fonts function
 const loadFonts = async () => {
@@ -50,7 +50,7 @@ const _layout = () => {
 
     const splashTimeout = setTimeout(() => {
       setIsSplashScreenVisible(false);
-    }, 3000000); 
+    }, 5000); 
 
     return () => clearTimeout(splashTimeout);
   }, []);
@@ -68,7 +68,7 @@ const _layout = () => {
   } else {
     return (
       <View style={styles.indexContainer} className="flex items-center justify-center bg-slate-700 min-h-screen">
-        <Index />
+        <Signup />
       </View>
     );
   }
