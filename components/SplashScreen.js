@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 30,
     fontWeight: 'bold',
-    fontFamily: 'Poppins',
+    fontFamily: 'Sora-Bold',
   },
   companyName: {
     fontWeight: 'normal',
