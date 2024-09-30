@@ -40,6 +40,9 @@ const Signup = () => {
         style={styles.bgImage}
       >
         <View style={styles.overlay}>
+          <View style={styles.back}>
+            <Image source={require('../assets/images/icons/back.png')} style={styles.backCon}/>
+          </View>
           <View style={styles.logoContainer}>
             <View>
             <Image source={require('../assets/images/fav.png') } style={styles.logoImage}/>
@@ -114,6 +117,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+  },
+  back :{
+    alignSelf:'flex-start',
+    position: 'absolute',
+    top: 70,
+    left: 20,
+    zIndex: 1000,
+  },
+  backCon:{
+    width: 25,
+    height: 25,
+    resizeMode: 'contain',
+    tintColor: '#fff',
   },
   logoContainer:{
     flexDirection: 'row',
