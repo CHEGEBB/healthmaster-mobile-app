@@ -79,6 +79,7 @@ export default _layout;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    fontFamily:'Poppins-Bold',
   },
   indexContainer: {
     flex: 1,

@@ -97,16 +97,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  label:{
-    display:'flex',
+  label: {
+    width: '100%',
     color: '#fff',
     fontSize: 14,
     marginBottom: 5,
     marginTop: 10,
     fontWeight: 'bold',
     fontFamily: 'Kanit-Regular',
-    textAlign:'left',
-    alignContent:'flex-start',
-    justifyContent:'flex-start',
-  }
+    textAlign: 'left',
+    alignSelf: 'flex-start', 
+  },
 });
