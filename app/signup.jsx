@@ -179,12 +179,13 @@ const Signup = () => {
               </Animated.View>
             ))}
           </View>
-        </Animated.View>
-        <View>
+           <View>
           <Text style={styles.account}>Already have an account? 
             <Link to="/login" className="text-green-600" style={styles.login}>Login</Link>
           </Text>
         </View>
+        </Animated.View>
+       
       </ImageBackground>
     </View>
   );
@@ -195,8 +196,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bgImage: {
-    flex: 1,
     width: width,
+    resizeMode: 'cover',
+    flex:2,
   },
   overlay: {
     flex: 1,
@@ -208,7 +210,7 @@ const styles = StyleSheet.create({
   back: {
     alignSelf: 'flex-start',
     position: 'absolute',
-    top: 60,
+    top: 80,
     left: 20,
     zIndex: 1000,
   },
@@ -224,11 +226,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignSelf: 'flex-start',
     gap: 10,
-    top: 10,
+    top: 30,
   },
   logoImage: {
-    width: 50,
-    height: 50,
+    width: 30,
+    height: 30,
     borderRadius: 50,
     backgroundColor: '#4BE3AC',
   },
@@ -240,22 +242,25 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   title: {
-    fontSize: 32,
+    fontSize: 25,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 20,
+    marginBottom: 0,
     fontFamily: 'Poppins-Bold',
     textAlign: 'left',
     alignSelf: 'flex-start',
+        top: 40,
+
   },
   input: {
     width: '100%',
     height: 50,
-    backgroundColor: '#000000',
+    backgroundColor: 'hsla(240, 10%, 15%, 0.9)',
     borderRadius: 5,
     marginBottom: 10,
     paddingHorizontal: 10,
     color: '#fff',
+    top: 70,
   },
   label: {
     width: '100%',
@@ -267,6 +272,8 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Bold',
     textAlign: 'left',
     alignSelf: 'flex-start',
+    top: 60,
+
   },
   button: {
     backgroundColor: '#4BE3AC',
@@ -277,6 +284,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: 200,
     marginTop: 30,
+        top: 60,
+
   },
   buttonText: {
     color: 'white',
@@ -292,6 +301,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 20,
     marginBottom: 10,
+        top: 60,
+
   },
   socialIconsContainer: {
     flexDirection: 'row',
@@ -307,11 +318,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 10,
+        top: 60,
+
   },
   socialIconImage: {
     width: 30,
     height: 30,
     resizeMode: 'contain',
+  },
+  account: {
+    color: '#fff',
+    textAlign: 'center',
+    marginTop: 20,
+        top: 70,
+
+  },
+  login: {
+    color: '#4BE3AC',
   },
 });
 
