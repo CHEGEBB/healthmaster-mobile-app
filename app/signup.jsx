@@ -1,14 +1,38 @@
+import { Link } from '@react-navigation/native';
 import React, { useEffect, useRef, useState } from 'react';
-import { ImageBackground, StyleSheet, Text, View, TextInput, TouchableOpacity, Dimensions, Animated, Image } from 'react-native';
+import { 
+  ImageBackground, 
+  StyleSheet, 
+  Text, 
+  View, 
+  TextInput, 
+  TouchableOpacity, 
+  Dimensions, 
+  Animated, 
+  Image 
+} from 'react-native';
 
 const { width, height } = Dimensions.get('window');
+
+const backgroundImage = require('../assets/images/welcome.png');
+const logoImage = require('../assets/images/fav.png');
+const backIcon = require('../assets/images/icons/back.png');
+const socialIcons = {
+  google: require('../assets/images/icons/google1.png'),
+  facebook: require('../assets/images/icons/facebook.png'),
+  apple: require('../assets/images/icons/apple.png'),
+};
 
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [userName, setUserName] = useState('');
+  const [focusedInput, setFocusedInput] = useState(null);
+  
   const shimmerAnim = useRef(new Animated.Value(0)).current;
-  const [focusedInput, setFocusedInput] = useState(null); 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.9)).current;
+  const socialIconsAnim = useRef(new Animated.Value(0)).current;
 
   const shimmerTranslate = shimmerAnim.interpolate({
     inputRange: [0, 1],
@@ -20,8 +44,37 @@ const Signup = () => {
       Animated.timing(shimmerAnim, {
         toValue: 1,
         duration: 2000,
-        useNativeDriver: false,
+        useNativeDriver: true,
       })
+    ).start();
+
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        friction: 5,
+        tension: 40,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(socialIconsAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(socialIconsAnim, {
+          toValue: 0,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
     ).start();
   }, []);
 
@@ -33,19 +86,30 @@ const Signup = () => {
     setFocusedInput(null);
   };
 
+  const socialIconScale = socialIconsAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.1],
+  });
+
   return (
     <View style={styles.containerSignup}>
       <ImageBackground
-        source={require('../assets/images/welcome.png')}
+        source={backgroundImage}
         style={styles.bgImage}
       >
-        <View style={styles.overlay}>
+        <Animated.View style={[
+          styles.overlay,
+          {
+            opacity: fadeAnim,
+            transform: [{ scale: scaleAnim }],
+          }
+        ]}>
           <View style={styles.back}>
-            <Image source={require('../assets/images/icons/back.png')} style={styles.backCon}/>
+            <Image source={backIcon} style={styles.backCon}/>
           </View>
           <View style={styles.logoContainer}>
             <View>
-            <Image source={require('../assets/images/fav.png') } style={styles.logoImage}/>
+              <Image source={logoImage} style={styles.logoImage}/>
             </View>
             <View>
               <Text style={styles.textStyle}>Health Master</Text>
@@ -92,16 +156,39 @@ const Signup = () => {
             onFocus={() => handleFocus('password')}
             onBlur={handleBlur}
           />
-          <TouchableOpacity style={styles.button} >
+          <TouchableOpacity style={styles.button}>
             <Text style={styles.buttonText}>Sign Up</Text>
           </TouchableOpacity>
+
+          <Text style={styles.orText}>Or sign up with</Text>
+          
+          <View style={styles.socialIconsContainer}>
+            {Object.keys(socialIcons).map((platform) => (
+              <Animated.View
+                key={platform}
+                style={{
+                  transform: [{ scale: socialIconScale }],
+                }}
+              >
+                <TouchableOpacity style={styles.socialIcon}>
+                  <Image
+                    source={socialIcons[platform]}
+                    style={styles.socialIconImage}
+                  />
+                </TouchableOpacity>
+              </Animated.View>
+            ))}
+          </View>
+        </Animated.View>
+        <View>
+          <Text style={styles.account}>Already have an account? 
+            <Link to="/login" className="text-green-600" style={styles.login}>Login</Link>
+          </Text>
         </View>
       </ImageBackground>
     </View>
   );
 };
-
-export default Signup;
 
 const styles = StyleSheet.create({
   containerSignup: {
@@ -118,39 +205,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  back :{
-    alignSelf:'flex-start',
+  back: {
+    alignSelf: 'flex-start',
     position: 'absolute',
-    top: 70,
+    top: 60,
     left: 20,
     zIndex: 1000,
   },
-  backCon:{
+  backCon: {
     width: 25,
     height: 25,
     resizeMode: 'contain',
     tintColor: '#fff',
   },
-  logoContainer:{
+  logoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
-    alignSelf:'flex-start',
-    gap:10,
-
+    alignSelf: 'flex-start',
+    gap: 10,
+    top: 10,
   },
   logoImage: {
     width: 50,
     height: 50,
     borderRadius: 50,
     backgroundColor: '#4BE3AC',
-    alignItems: 'left',
   },
-  textStyle:{
+  textStyle: {
     fontSize: 20,
     color: '#fff',
     fontFamily: 'Sora-Bold',
-    textAlign:'left',
+    textAlign: 'left',
     alignSelf: 'flex-start',
   },
   title: {
@@ -159,13 +245,13 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginBottom: 20,
     fontFamily: 'Poppins-Bold',
-    textAlign:'left',
-    alignSelf: 'flex-start', 
+    textAlign: 'left',
+    alignSelf: 'flex-start',
   },
   input: {
     width: '100%',
     height: 50,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: '#000000',
     borderRadius: 5,
     marginBottom: 10,
     paddingHorizontal: 10,
@@ -177,10 +263,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 5,
     marginTop: 10,
-    fontWeight: 'semibold',
+    fontWeight: 'bold',
     fontFamily: 'Poppins-Bold',
     textAlign: 'left',
-    alignSelf: 'flex-start', 
+    alignSelf: 'flex-start',
   },
   button: {
     backgroundColor: '#4BE3AC',
@@ -189,8 +275,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
-    width:200,
-    top:30,
+    width: 200,
+    marginTop: 30,
   },
   buttonText: {
     color: 'white',
@@ -198,7 +284,35 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   focusedInput: {
-    borderColor: '#4BE3AC', 
+    borderColor: '#4BE3AC',
     borderWidth: 2,
   },
+  orText: {
+    color: '#fff',
+    fontSize: 16,
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  socialIconsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  socialIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
+  socialIconImage: {
+    width: 30,
+    height: 30,
+    resizeMode: 'contain',
+  },
 });
+
+export default Signup;

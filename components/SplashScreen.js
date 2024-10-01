@@ -155,7 +155,7 @@ const SplashScreen = () => {
           </Animated.View>
 
           <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: pulseAnim }] }}>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => alert('Get Started Clicked')}
               style={styles.buttonContainer}
             >
@@ -168,7 +168,7 @@ const SplashScreen = () => {
                 ]} />
                 <Text style={styles.buttonText}>Get Started</Text>
               </View>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </Animated.View>
         </View>
       </ImageBackground>
