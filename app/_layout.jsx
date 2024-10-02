@@ -91,6 +91,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
-    fontFamily: 'Poppins-Regular',
   },
 });
