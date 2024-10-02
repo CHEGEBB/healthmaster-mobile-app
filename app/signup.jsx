@@ -1,14 +1,22 @@
-import React from 'react';
-import { View, Text, Button } from 'react-native';
-import { useRouter } from 'expo-router';
+import { View, Text, StyleSheet } from 'react-native';
 
-export default function Signup() {
-  const router = useRouter();
-
+export default function SignUp() {
   return (
-    <View>
-      <Text>Signup Screen</Text>
-      <Button title="Go Back" onPress={() => router.back()} />
+    <View style={styles.container}>
+      <Text style={styles.text}>Sign Up Page</Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#000',
+  },
+  text: {
+    color: '#fff',
+    fontSize: 24,
+  },
+});

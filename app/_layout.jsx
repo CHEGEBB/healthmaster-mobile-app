@@ -4,6 +4,7 @@ import { View, StyleSheet } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import CustomSplashScreen from '../components/SplashScreen';
+import { Slot } from 'expo-router';
 
 const fontFiles = {
   'Jost-Regular': require('../assets/fonts/Jost-Regular.ttf'),
@@ -49,11 +50,7 @@ export default function Layout() {
       try {
         // Keep the splash screen visible while we fetch resources
         await SplashScreen.preventAutoHideAsync();
-        // Load fonts, make any API calls you need to do here
-        
-        // Artificially delay for two seconds to simulate a slow loading
-        // experience. Please remove this if you copy and paste the code!
-        await new Promise(resolve => setTimeout(resolve, 7000));
+        await new Promise(resolve => setTimeout(resolve, 7000)); // simulate loading time
       } catch (e) {
         console.warn(e);
       } finally {
@@ -72,19 +69,21 @@ export default function Layout() {
     }
   }, [fontsLoaded, fontError]);
 
+  // If fonts haven't loaded yet, keep showing the splash screen
   if (!fontsLoaded && !fontError) {
     return null;
   }
 
-  // Show your custom splash screen for the first 7 seconds or until fonts are loaded
-  if (isSplashScreen || !fontsLoaded) {
-    return <CustomSplashScreen />;
-  }
-
   return (
-    <Stack>
-      {/* Your app's main content goes here */}
-    </Stack>
+    <>
+      {isSplashScreen ? (
+        <CustomSplashScreen />
+      ) : (
+        <Stack>
+          <Slot /> {/* This will allow navigation to other routes like /signup */}
+        </Stack>
+      )}
+    </>
   );
 }
 
