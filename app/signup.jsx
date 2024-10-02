@@ -206,12 +206,17 @@ const styles = StyleSheet.create({
   welcomeContainer: {
     alignItems: 'center',
     marginBottom: 40,
-    backgroundColor: 'rgba(200,200,200,0.2)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     borderBottomLeftRadius: 50,
     borderBottomRightRadius: 50,
     paddingHorizontal: 20,
     paddingVertical: 50,
     flex: 1,
+    shadowColor: '#4BE3AC',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 5,
     
   },
   welcomeAnimation: {
