@@ -8,18 +8,18 @@ const { width, height } = Dimensions.get('window');
 const carouselData = [
   {
     title: "Medication Reminders",
-    text: "Manage your medications and take them on time with HealthMaster",
+    text: "Manage your medications and take them on time with Health Master",
     image: require('../assets/images/land1.png'),
   },
   {
     title: "Doctor Appointments",
-    text: "HealthMaster helps you manage appointments with doctors",
+    text: "Health Master helps you manage appointments with doctors",
     image: require('../assets/images/welcome.png'),
   },
   {
     title: "Health Stats",
     text: "See your health stats and track your progress",
-    image: require('../assets/images/stats.webp'),
+    image: require('../assets/images/lungs.png'),
   },
 ];
 
@@ -106,8 +106,8 @@ const styles = StyleSheet.create({
   textContainer: {
     backgroundColor: 'hsla(231, 19%, 17%, 0.8)',
     padding: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
   },
   title: {
     fontSize: 24,
@@ -129,17 +129,19 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#FF487E',
+    backgroundColor: '#4BE3AC',
     margin: 5,
+    bottom:60,
   },
   button: {
     position: 'absolute',
     bottom: 50,
     alignSelf: 'center',
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#57C4A5',
     paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 25,
+    paddingHorizontal: 60,
+    borderRadius: 10,
+    width : '60%',
   },
   buttonText: {
     color: '#fff',

@@ -1,10 +1,9 @@
-import { Stack } from 'expo-router';
+import { Stack, Slot } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import CustomSplashScreen from '../components/SplashScreen';
-import { Slot } from 'expo-router';
 
 const fontFiles = {
   'Jost-Regular': require('../assets/fonts/Jost-Regular.ttf'),
@@ -48,13 +47,11 @@ export default function Layout() {
   useEffect(() => {
     async function prepare() {
       try {
-        // Keep the splash screen visible while we fetch resources
         await SplashScreen.preventAutoHideAsync();
-        await new Promise(resolve => setTimeout(resolve, 7000)); // simulate loading time
+        await new Promise(resolve => setTimeout(resolve, 7000));
       } catch (e) {
         console.warn(e);
       } finally {
-        // Tell the application to render
         setIsSplashScreen(false);
       }
     }
@@ -64,26 +61,27 @@ export default function Layout() {
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
-      // Hide the splash screen after the fonts have loaded (or an error was returned) and the UI is ready.
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
 
-  // If fonts haven't loaded yet, keep showing the splash screen
   if (!fontsLoaded && !fontError) {
     return null;
   }
 
+  if (isSplashScreen) {
+    return <CustomSplashScreen />;
+  }
+
   return (
-    <>
-      {isSplashScreen ? (
-        <CustomSplashScreen />
-      ) : (
-        <Stack>
-          <Slot /> {/* This will allow navigation to other routes like /signup */}
-        </Stack>
-      )}
-    </>
+    <Stack>
+      <Stack.Screen 
+        name="index" 
+        options={{
+          headerShown: false,
+        }}
+      />
+    </Stack>
   );
 }
 

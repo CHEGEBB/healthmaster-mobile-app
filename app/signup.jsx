@@ -1,4 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { Stack } from 'expo-router';
+
 
 export default function SignUp() {
   return (
