@@ -217,13 +217,15 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 'bold',
     marginLeft: 10,
-    marginTop:120
+    marginTop:120,
+    fontFamily: 'Outfit-Bold',
   },
   tagline: {
     color: 'white',
     fontSize: 18,
     textAlign: 'center',
     marginBottom: 20,
+    fontFamily: 'Poppins-Bold',
   },
   animatedPhraseContainer: {
     height: 30,
@@ -236,6 +238,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     textAlign: 'center',
+    fontFamily: 'Poppins-Bold',
   },
   buttonContainer: {
     overflow: 'hidden',
