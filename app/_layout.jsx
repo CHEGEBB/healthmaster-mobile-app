@@ -96,13 +96,12 @@ export default function Layout() {
 
   return (
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-      <Stack>
-        <Stack.Screen
-          name="index"
-          options={{
-            headerShown: false,
-          }}
-        />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="signup" />
+        <Stack.Screen name="login" />
+        <Stack.Screen name="started" />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
     </View>
   );

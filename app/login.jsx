@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   View, Text, ImageBackground, StyleSheet, Dimensions, 
   TextInput, TouchableOpacity, Animated, Keyboard, 
-  KeyboardAvoidingView, Platform, ScrollView
+  KeyboardAvoidingView, Platform, ScrollView, Modal
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router';
@@ -16,6 +16,7 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [focusedInput, setFocusedInput] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(height)).current;
@@ -69,6 +70,14 @@ export default function Login() {
       ])
     ).start();
   }, []);
+
+  const handleLogin = () => {
+    setModalVisible(true);
+    setTimeout(() => {
+      setModalVisible(false);
+      router.push('/started');
+    }, 3000); // Show modal for 3 seconds before redirecting
+  };
 
   const renderInput = (icon, placeholder, value, onChangeText, secureTextEntry = false) => (
     <Animated.View
@@ -146,7 +155,7 @@ export default function Login() {
               {renderInput('mail-outline', 'Email', email, setEmail)}
               {renderInput('lock-closed-outline', 'Password', password, setPassword, true)}
               
-              <TouchableOpacity style={styles.loginButton}>
+              <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
                 <Text style={styles.loginButtonText}>Login</Text>
               </TouchableOpacity>
               <Text style={styles.socialsText}>or Sign in with</Text>
@@ -170,6 +179,25 @@ export default function Login() {
           </ScrollView>
         </View>
       </ImageBackground>
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>You have logged in successfully!</Text>
+            <LottieView
+              source={require('../assets/animations/confetti.json')}
+              autoPlay
+              loop={false}
+              style={styles.confettiAnimation}
+            />
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -330,5 +358,36 @@ const styles = StyleSheet.create({
     shadowRadius: 5,
     elevation: 5,
     justifyContent: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#161622',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  modalText: {
+    color: '#4BE3AC',
+    fontSize: 18,
+    textAlign: 'center',
+    marginBottom: 20,
+    fontWeight: 'bold',
+  },
+  confettiAnimation: {
+    width: 200,
+    height: 200,
   },
 });
