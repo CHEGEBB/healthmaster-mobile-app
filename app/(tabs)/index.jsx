@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, ImageBackground, TextInput, TouchableOpacity, Image } from 'react-native';
-import { Stack } from 'expo-router';
+import { View, Text, StyleSheet, ScrollView, ImageBackground, TextInput, TouchableOpacity, Image, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Stack } from 'expo-router';
+
 
 export default function Dashboard() {
   const [appointmentsCount, setAppointmentsCount] = useState(0);
   const [alarmsCount, setAlarmsCount] = useState(0);
   const [scheduleCount, setScheduleCount] = useState(0);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
 
   useEffect(() => {
     const countUp = (setCount, targetValue) => {
@@ -21,24 +24,37 @@ export default function Dashboard() {
       }, 50); 
     };
 
-    countUp(setAppointmentsCount, 10); 
-    countUp(setAlarmsCount, 5); 
-    countUp(setScheduleCount, 3); 
+    countUp(setAppointmentsCount, 10);
+    countUp(setAlarmsCount, 5);
+    countUp(setScheduleCount, 3);
   }, []);
+
+  const openModal = (schedule) => {
+    setSelectedSchedule(schedule);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setSelectedSchedule(null);
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.contentContainer} style={styles.container}>
-      <Stack.Screen options={{ headerShown: false }} />
+              <Stack.Screen options={{ headerShown: false }} />
+
+      {/* Header Section */}
       <View style={styles.headerContainer}>
         <ImageBackground 
           source={require('../../assets/images/register.png')} 
           style={styles.imageContainer}
-          imageStyle={styles.imageStyle}  
+          imageStyle={styles.imageStyle}
         >
           <View style={styles.overlay} />
 
+          {/* Greeting and Notification */}
           <View style={styles.row}>
-            <Text style={styles.headerText}>Hi, Emily👋 !</Text>
+            <Text style={styles.headerText}>Hi, Emily👋!</Text>
             <TouchableOpacity style={styles.iconButton}>
               <Ionicons name="notifications-outline" size={24} color="#FFF" />
             </TouchableOpacity>
@@ -46,6 +62,7 @@ export default function Dashboard() {
 
           <Text style={styles.healthText}>How is Your Health Today?</Text>
 
+          {/* Search Bar */}
           <View style={styles.searchBar}>
             <Ionicons name="search-outline" size={20} color="#555" style={styles.iconLeft} />
             <TextInput
@@ -58,19 +75,21 @@ export default function Dashboard() {
             </TouchableOpacity>
           </View>
 
+          {/* Date and Profile */}
           <View style={styles.dateRow}>
             <View style={styles.dateSection}>
               <Ionicons name="calendar-outline" size={20} color="#FFF" />
               <Text style={styles.dateText}>Today is {new Date().toLocaleDateString()}</Text>
             </View>
             <TouchableOpacity style={styles.profileContainer}>
-    <Image
-      source={require('../../assets/images/36.jpg')} 
-      style={styles.profileImage}
-    />
-  </TouchableOpacity>
+              <Image
+                source={require('../../assets/images/36.jpg')} // Change the path to your actual profile image
+                style={styles.profileImage}
+              />
+            </TouchableOpacity>
           </View>
 
+          {/* Action Cards */}
           <View style={styles.actionRow}>
             <View style={[styles.card, styles.cardAppointments]}>
               <Ionicons name="calendar-outline" size={30} color="#FFF" />
@@ -89,6 +108,75 @@ export default function Dashboard() {
             </View>
           </View>
         </ImageBackground>
+      </View>
+
+      {/* Upcoming Schedule */}
+      <View style={styles.upcomingSchedule}>
+        <View style={styles.upcomingScheduleHeader}>
+          <Text style={styles.upcomingScheduleTitle}>Upcoming Schedule</Text>
+          <TouchableOpacity>
+            <Text style={styles.seeAllText}>See All</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.scheduleRow}>
+          {[
+            { time: "10:00 AM", doctor: "Dr. John Doe", image: require('../../assets/images/1.png') },
+            { time: "12:00 PM", doctor: "Dr. Jane Smith", image: require('../../assets/images/2.png') },
+            { time: "14:00 PM", doctor: "Dr. Mike Johnson", image: require('../../assets/images/3.png') }
+          ].map((schedule, index) => (
+            <View style={styles.scheduleItem} key={index}>
+              <Image source={schedule.image} style={styles.doctorImage} />
+              <View style={styles.scheduleDetails}>
+                <Text style={styles.scheduleItemTitle}>{schedule.time}</Text>
+                <Text style={styles.scheduleItemText}>{schedule.doctor}</Text>
+              </View>
+              <TouchableOpacity onPress={() => openModal(schedule)}>
+                <Ionicons name="ellipsis-vertical" size={24} color="#777" />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      </View>
+
+      {/* Modal for Schedule Details */}
+      {selectedSchedule && (
+        <Modal visible={modalVisible} transparent={true} animationType="slide">
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{selectedSchedule.doctor}</Text>
+              <Text style={styles.modalTime}>Scheduled at {selectedSchedule.time}</Text>
+              <Image source={selectedSchedule.image} style={styles.modalDoctorImage} />
+
+              <View style={styles.modalActions}>
+                <TouchableOpacity style={styles.modalButtonDone}>
+                  <Ionicons name="checkmark-outline" size={20} color="#FFF" />
+                  <Text style={styles.modalButtonText}>Done</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.modalButtonCancel}>
+                  <Ionicons name="close-outline" size={20} color="#FFF" />
+                  <Text style={styles.modalButtonText}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity style={styles.modalCloseButton} onPress={closeModal}>
+                <Ionicons name="close-outline" size={24} color="#FFF" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
+      <View style={styles.myReminders}>
+        <View style={styles.myRemindersHeader}>
+          <Text style={styles.myRemindersTitle}>My Reminders</Text>
+            <TouchableOpacity>
+                <Text style={styles.seeAllText}>See All</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.addReminderButton}>
+                <Ionicons name="add-circle-outline" size={24} color="#FFF" />
+              </TouchableOpacity>
+  </View>
       </View>
     </ScrollView>
   );
@@ -243,6 +331,168 @@ profileContainer: {
     height: 50,
     borderRadius: 25,
   },
+  upcomingSchedule: {
+    marginVertical: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    backgroundColor: '#161622',
+    borderRadius: 20,
+    elevation: 5,
+    overflow: 'hidden',
+    width: '90%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
+  upcomingScheduleHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+    
+    
+  },
+  upcomingScheduleTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#FFF',
+
+  },
+  seeAllText: {
+    color: '#4A90E2',
+    fontSize: 14,
+  },
+  scheduleRow: {
+    flexDirection: 'column',
+  },
+  scheduleItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#2E383F',
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  doctorImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    marginBottom: 10,
+    borderWidth: 2,
+  },
+  scheduleDetails: {
+    flex: 1,
+  },
+  scheduleItemTitle: {
+    fontSize: 16,
+    color: '#FFF',
+  },
+  scheduleItemText: {
+    fontSize: 14,
+    color: '#BBB',
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#161622',
+    borderRadius: 20,
+    padding: 20,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#FFF',
+  },
+    modalTime: {
+        fontSize: 16,
+        color: '#777',
+        marginBottom: 20,
+    },
+    modalDoctorImage: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+        marginBottom: 20,
+    },
+    modalActions: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        width: '100%',
+        marginBottom: 20,
+    },
+    modalButtonDone: {
+        backgroundColor: '#50C878',
+        padding: 10,
+        borderRadius: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    modalButtonText: {
+        fontSize: 16,
+        color: '#FFF',
+        marginLeft: 10,
+    },
+    modalButtonCancel: {
+        backgroundColor: '#FF6F61',
+        padding: 10,
+        borderRadius: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    modalCloseButton: {
+        position: 'absolute',
+        top: 10,
+        right: 10,
+        backgroundColor: '#FF6F61',
+    },
+    selectedSchedule: {
+        backgroundColor: '#4A90E2',
+        padding: 10,
+        borderRadius: 10,
+        marginBottom: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+    },
+    selectedScheduleText: {
+        fontSize: 16,
+        color: '#FFF',
+    },
+    selectedScheduleDetails: {
+        flex: 1,
+    },
+    selectedDoctorImage: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        marginBottom: 10,
+    },
+    selectedScheduleDetails: {
+        flex: 1,
+    },
+    selectedScheduleItemTitle: {
+        fontSize: 16,
+        color: '#FFF',
+    },
+    
+
   
 });
 
