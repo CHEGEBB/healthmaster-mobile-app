@@ -4,14 +4,11 @@ import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function Dashboard() {
-  // State for count-up numbers
   const [appointmentsCount, setAppointmentsCount] = useState(0);
   const [alarmsCount, setAlarmsCount] = useState(0);
   const [scheduleCount, setScheduleCount] = useState(0);
 
-  // Simulate loading and counting up numbers
   useEffect(() => {
-    // Function to animate the count-up effect
     const countUp = (setCount, targetValue) => {
       let count = 0;
       const interval = setInterval(() => {
@@ -21,13 +18,12 @@ export default function Dashboard() {
         } else {
           clearInterval(interval);
         }
-      }, 50); // Adjust the speed of the count-up here
+      }, 50); 
     };
 
-    // Simulating data fetch or calculations
-    countUp(setAppointmentsCount, 10); // Pending appointments
-    countUp(setAlarmsCount, 5); // Pending alarms
-    countUp(setScheduleCount, 3); // Schedules for today
+    countUp(setAppointmentsCount, 10); 
+    countUp(setAlarmsCount, 5); 
+    countUp(setScheduleCount, 3); 
   }, []);
 
   return (
@@ -41,7 +37,6 @@ export default function Dashboard() {
         >
           <View style={styles.overlay} />
 
-          {/* Row 1: Hi and Notifications Icon */}
           <View style={styles.row}>
             <Text style={styles.headerText}>Hi, Emily👋 !</Text>
             <TouchableOpacity style={styles.iconButton}>
@@ -49,10 +44,8 @@ export default function Dashboard() {
             </TouchableOpacity>
           </View>
 
-          {/* Row 2: Health Text */}
           <Text style={styles.healthText}>How is Your Health Today?</Text>
 
-          {/* Row 3: Search Bar with Search and Voice Icons */}
           <View style={styles.searchBar}>
             <Ionicons name="search-outline" size={20} color="#555" style={styles.iconLeft} />
             <TextInput
@@ -65,7 +58,6 @@ export default function Dashboard() {
             </TouchableOpacity>
           </View>
 
-          {/* Row 4: Date Section with Calendar Icons */}
           <View style={styles.dateRow}>
             <View style={styles.dateSection}>
               <Ionicons name="calendar-outline" size={20} color="#FFF" />
@@ -73,13 +65,12 @@ export default function Dashboard() {
             </View>
             <TouchableOpacity style={styles.profileContainer}>
     <Image
-      source={require('../../assets/images/36.jpg')} // Your image path here
+      source={require('../../assets/images/36.jpg')} 
       style={styles.profileImage}
     />
   </TouchableOpacity>
           </View>
 
-          {/* Row 5: Action Cards with Count-Up Animation */}
           <View style={styles.actionRow}>
             <View style={[styles.card, styles.cardAppointments]}>
               <Ionicons name="calendar-outline" size={30} color="#FFF" />
