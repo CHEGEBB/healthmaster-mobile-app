@@ -491,7 +491,33 @@ profileContainer: {
         fontSize: 16,
         color: '#FFF',
     },
-    
+    myReminders: {
+        marginBottom: 20,
+        paddingHorizontal: 20,
+        paddingVertical: 20,
+        backgroundColor: '#161622',
+        borderRadius: 20,
+        elevation: 5,
+        overflow: 'hidden',
+        width: '90%',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+    },
+    myRemindersHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    myRemindersTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#FFF',
+    },
+    myRemindersText: {
+        fontSize: 14,
+        color: '#BBB',
+    },
 
   
 });
