@@ -19,6 +19,8 @@ export default function Login() {
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(height)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const floatAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.parallel([
@@ -34,6 +36,38 @@ export default function Login() {
         useNativeDriver: true,
       }),
     ]).start();
+
+    // Pulsing animation
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Floating animation
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(floatAnim, {
+          toValue: -10,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+        Animated.timing(floatAnim, {
+          toValue: 0,
+          duration: 1500,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
   }, []);
 
   const renderInput = (icon, placeholder, value, onChangeText, secureTextEntry = false) => (
@@ -44,7 +78,9 @@ export default function Login() {
         { transform: [{ translateY: slideAnim }] }
       ]}
     >
-      <Ionicons name={icon} size={24} color="#4BE3AC" style={styles.icon} />
+      <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+        <Ionicons name={icon} size={24} color="#4BE3AC" style={styles.icon} />
+      </Animated.View>
       <TextInput
         style={styles.input}
         placeholder={placeholder}
@@ -58,31 +94,44 @@ export default function Login() {
     </Animated.View>
   );
 
+  const renderSocialButton = (iconName) => (
+    <Animated.View style={[styles.socialButton, { transform: [{ scale: pulseAnim }] }]}>
+      <TouchableOpacity>
+        <Ionicons name={iconName} size={24} color="#fff" />
+      </TouchableOpacity>
+    </Animated.View>
+  );
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
       <Stack.Screen options={{ headerShown: false }} />
-      <ScrollView contentContainerStyle={styles.scrollViewContent}>
-        <View style={styles.imageWrapper}>
-          <ImageBackground 
-            source={require("../assets/images/back.webp")} 
-            style={styles.Imagecontainer}
-          >
-            <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
-              {/* <LottieView
-                source={require('../assets/animations/wave.json')}
-                autoPlay
-                loop
-                style={styles.waveAnimation}
-              /> */}
-            </Animated.View>
-          </ImageBackground>
-        </View>
-        
-        <View style={styles.ContentContainer}>
-        <View style={styles.logoContainer}>
+      <ImageBackground 
+        source={require("../assets/images/register.png")} 
+        style={styles.backgroundPattern}
+      >
+        <View style={styles.overlay}>
+          <ScrollView contentContainerStyle={styles.scrollViewContent}>
+            <View style={styles.imageWrapper}>
+              <ImageBackground 
+                source={require("../assets/images/back.webp")} 
+                style={styles.Imagecontainer}
+              >
+                <Animated.View style={[styles.overlay, { opacity: fadeAnim }]}>
+                  {/* <LottieView
+                    source={require('../assets/animations/wave.json')}
+                    autoPlay
+                    loop
+                    style={styles.waveAnimation}
+                  /> */}
+                </Animated.View>
+              </ImageBackground>
+            </View>
+            
+            <Animated.View style={[styles.ContentContainer, { transform: [{ translateY: floatAnim }] }]}>
+              <View style={styles.logoContainer}>
                 <LottieView
                   source={require('../assets/animations/logo.json')}
                   autoPlay
@@ -92,29 +141,35 @@ export default function Login() {
                 <Text style={styles.logoText}>Health Master</Text>
               </View>
               <View style={styles.login}>
-                <Text className="text-emerald-400 text-md font-bold -mt-2" style={styles.loginText}>
-                  Log in
-                </Text>
-                </View>
-          {renderInput('mail-outline', 'Email', email, setEmail)}
-          {renderInput('lock-closed-outline', 'Password', password, setPassword, true)}
-          
-          <TouchableOpacity style={styles.loginButton}>
-            <Text style={styles.loginButtonText}>Login</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity style={styles.forgotPasswordButton}>
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-          </TouchableOpacity>
-          
-          <View style={styles.signupContainer}>
-            <Text style={styles.signupText}>Don't have an account? </Text>
-            <TouchableOpacity onPress={() => router.push('/signup')}>
-              <Text style={styles.signupLink}>Sign Up</Text>
-            </TouchableOpacity>
-          </View>
+                <Text style={styles.loginText}>Log in</Text>
+              </View>
+              {renderInput('mail-outline', 'Email', email, setEmail)}
+              {renderInput('lock-closed-outline', 'Password', password, setPassword, true)}
+              
+              <TouchableOpacity style={styles.loginButton}>
+                <Text style={styles.loginButtonText}>Login</Text>
+              </TouchableOpacity>
+              <Text style={styles.socialsText}>or Sign in with</Text>
+              <View style={styles.socialsContainer}>
+                {renderSocialButton('logo-google')}
+                {renderSocialButton('logo-facebook')}
+                {renderSocialButton('logo-twitter')}
+              </View>
+              
+              <TouchableOpacity style={styles.forgotPasswordButton}>
+                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+              </TouchableOpacity>
+              
+              <View style={styles.signupContainer}>
+                <Text style={styles.signupText}>Don't have an account? </Text>
+                <TouchableOpacity onPress={() => router.push('/signup')}>
+                  <Text style={styles.signupLink}>Sign Up</Text>
+                </TouchableOpacity>
+              </View>
+            </Animated.View>
+          </ScrollView>
         </View>
-      </ScrollView>
+      </ImageBackground>
     </KeyboardAvoidingView>
   );
 }
@@ -122,7 +177,15 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#161622',
+  },
+  backgroundPattern: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(22, 22, 34, 0.5)',
   },
   scrollViewContent: {
     flexGrow: 1,
@@ -139,12 +202,6 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
   },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   waveAnimation: {
     position: 'absolute',
     width: '100%',
@@ -153,16 +210,14 @@ const styles = StyleSheet.create({
   logoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: -40,
-    alignSelf : 'flex-start',
+    marginTop: -50,
+    alignSelf: 'flex-start',
     marginLeft: -10,
-  
   },
   logoAnimation: {
     width: 50,
     height: 50,
     marginTop: -40,
-
   },
   logoText: {
     fontSize: 24,
@@ -170,13 +225,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginLeft: 5,
     marginTop: -40,
-
-  },
-  headerText: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
+    fontFamily: 'Raleway-Light',
   },
   ContentContainer: {
     flex: 1,
@@ -197,7 +246,6 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
     width: '100%',
     marginTop: 10,
-
   },
   focusedInput: {
     borderColor: '#4BE3AC',
@@ -210,6 +258,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     paddingVertical: 15,
+    fontFamily: 'Raleway-Light',
   },
   loginButton: {
     backgroundColor: '#4BE3AC',
@@ -246,7 +295,7 @@ const styles = StyleSheet.create({
   },
   login: {
     marginBottom: 10,
-    alignSelf : 'flex-start',
+    alignSelf: 'flex-start',
   },
   loginText: {
     fontWeight: 'bold',
@@ -254,7 +303,32 @@ const styles = StyleSheet.create({
     textAlign: 'left',
     marginTop: 20,
     bottom: 10,
-    fontSize : 20,
+    fontSize: 20,
     left: 4,
+    color: '#4BE3AC',
+  },
+  socialsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+    gap: 30,
+  },
+  socialsText: {
+    color: '#3472CA',
+    marginRight: 10,
+    fontSize: 14,
+    marginTop: 10,
+  },
+  socialButton: {
+    backgroundColor: '#3472CA',
+    padding: 15,
+    borderRadius: 30,
+    shadowColor: '#4BE3AC',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 5,
+    elevation: 5,
+    justifyContent: 'center',
   },
 });

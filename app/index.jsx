@@ -114,10 +114,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
     marginBottom: 10,
+    fontFamily: 'Outfit-Bold',
   },
   text: {
     fontSize: 16,
     color: '#fff',
+    fontFamily: 'Raleway-Regular',
+
   },
   pagination: {
     flexDirection: 'row',

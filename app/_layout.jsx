@@ -1,5 +1,5 @@
-import { Stack, Slot } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { Stack } from 'expo-router';
+import { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -38,6 +38,27 @@ const fontFiles = {
   'OpenSans-SemiBold': require('../assets/fonts/OpenSans-SemiBold.ttf'),
   'OpenSans-Bold': require('../assets/fonts/OpenSans-Bold.ttf'),
   'OpenSans-ExtraBold': require('../assets/fonts/OpenSans-ExtraBold.ttf'),
+  'Raleway': require('../assets/fonts/Raleway-Regular.ttf'),
+  'Raleway-SemiBold': require('../assets/fonts/Raleway-SemiBold.ttf'),
+  'Raleway-Bold': require('../assets/fonts/Raleway-Bold.ttf'),
+  'Raleway-ExtraBold': require('../assets/fonts/Raleway-ExtraBold.ttf'),
+  'RopaSans-Regular': require('../assets/fonts/RopaSans-Regular.ttf'),
+  'Poppins-Italic': require('../assets/fonts/Poppins-Italic.ttf'),
+  'Popppins-Light': require('../assets/fonts/Poppins-Light.ttf'),
+  'Poppins-Medium': require('../assets/fonts/Poppins-Medium.ttf'),
+  'Poppins-SemiBold': require('../assets/fonts/Poppins-SemiBold.ttf'),
+  'Poppins-Bold': require('../assets/fonts/Poppins-Bold.ttf'),
+  'Poppins-ExtraBold': require('../assets/fonts/Poppins-ExtraBold.ttf'),
+  'Poppins-Black': require('../assets/fonts/Poppins-Black.ttf'),
+  'Outfit-Light': require('../assets/fonts/Outfit-Light.ttf'),
+  'Jost-Light': require('../assets/fonts/Jost-Light.ttf'),
+  'Rubik-Light': require('../assets/fonts/Rubik-Light.ttf'),
+  'Outfit-Medium': require('../assets/fonts/Outfit-Medium.ttf'),
+  'Outfit-Bold': require('../assets/fonts/Outfit-Bold.ttf'),
+  'Outfit-ExtraBold': require('../assets/fonts/Outfit-ExtraBold.ttf'),
+  'Raleway-Light': require('../assets/fonts/Raleway-Light.ttf'),
+  'Raleway-Medium': require('../assets/fonts/Raleway-Medium.ttf'),
+  'Raleway-Regular': require('../assets/fonts/Raleway-Regular.ttf'),
 };
 
 export default function Layout() {
@@ -59,9 +80,9 @@ export default function Layout() {
     prepare();
   }, []);
 
-  useEffect(() => {
+  const onLayoutRootView = useCallback(async () => {
     if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
+      await SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
 
@@ -74,14 +95,16 @@ export default function Layout() {
   }
 
   return (
-    <Stack>
-      <Stack.Screen 
-        name="index" 
-        options={{
-          headerShown: false,
-        }}
-      />
-    </Stack>
+    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+      <Stack>
+        <Stack.Screen
+          name="index"
+          options={{
+            headerShown: false,
+          }}
+        />
+      </Stack>
+    </View>
   );
 }
 
@@ -91,6 +114,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
-    fontFamily :'Kanit-Bold',
   },
 });

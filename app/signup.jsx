@@ -238,6 +238,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'transparent',
     
+    
   },
   focusedInput: {
     borderColor: '#4BE3AC',
@@ -250,6 +251,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     paddingVertical: 15,
+    fontFamily: 'Raleway-Light',
+
   },
   button: {
     backgroundColor: '#4BE3AC',
@@ -266,10 +269,13 @@ const styles = StyleSheet.create({
   loginLink: {
     marginTop: 20,
     alignItems: 'center',
+
   },
   loginLinkText: {
     color: '#fff',
     fontSize: 14,
+    fontFamily: 'Raleway-Light',
+
   },
   confetti: {
     position: 'absolute',
@@ -289,6 +295,7 @@ const styles = StyleSheet.create({
     color: 'white',
     borderRadius: 20,
     padding: 30,
+    fontFamily: 'Raleway-Light',
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
@@ -323,15 +330,21 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     backgroundColor: '#4CAF50',
+    fontFamily: 'Raleway-Light',
+
   },
   stayButton: {
     backgroundColor: '#2196F3',
+    fontFamily: 'Raleway-Light',
+
   },
   modalButtonText: {
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
     fontSize: 16,
+    fontFamily: 'Raleway-Light',
+
   },
   lottie: {
     width: 30,
@@ -343,6 +356,8 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginTop: 40,
     marginLeft: 15,
+    fontFamily: 'Raleway-Light',
+
   },
   nameContainer: {
     display: 'flex',
@@ -350,14 +365,17 @@ const styles = StyleSheet.create({
     justifyContent:'center',
     alignItems:'center',
     marginBottom: 10,
+    fontFamily: 'Raleway-Light',
+
   },
   nameText: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#fff',
     marginLeft: 5,
-    fontFamily: 'Sora-Bold',
     marginTop: 3,
+    fontFamily: 'Raleway-Light',
+
   },
   signupText: {
     fontWeight: 'bold',
@@ -365,6 +383,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: -10,
     bottom: 10,
+    fontFamily: 'Raleway-Light',
+
   },
 
 });
