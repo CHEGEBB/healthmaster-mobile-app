@@ -103,12 +103,8 @@ const MedicationReminders = () => {
     >
       <View style={styles.content}>
         
-        <Text style={styles.title}>Important Reminders</Text>
-        
-        <View style={styles.reminderContainer}>
-          {displayedReminders.map(renderReminderItem)}
-        </View>
-        <View style={styles.iconButtonContainer}>
+        <Text style={styles.title}>Important Medications</Text>
+         <View style={styles.iconButtonContainer}>
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => setShowAllReminders(!showAllReminders)}
@@ -118,14 +114,22 @@ const MedicationReminders = () => {
               size={32} 
               color="#4A90E2" 
             />
+            <Text className="text-white" style={styles.see}>see all</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.iconButton}
             onPress={() => navigation.navigate('reminders')}
           >
             <Ionicons name="add-circle" size={32} color="#4A90E2" />
+                        <Text className="text-white" style={styles.see}>Add</Text>
+
           </TouchableOpacity>
         </View>
+        
+        <View style={styles.reminderContainer}>
+          {displayedReminders.map(renderReminderItem)}
+        </View>
+       
         <Modal
           animationType="fade"
           transparent={true}

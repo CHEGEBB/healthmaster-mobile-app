@@ -10,8 +10,8 @@ const appointmentData = [
     time: '09:30 AM',
     duration: '45 min',
     location: 'Heart Care Center',
-    image: require('../assets/images/11.png'),
-    color: '#FF6B6B',
+    image: require('../assets/images/2.png'),
+    color: '#1f2937',
   },
   {
     id: 2,
@@ -21,7 +21,7 @@ const appointmentData = [
     duration: '30 min',
     location: 'Skin Health Clinic',
     image: require('../assets/images/6.png'),
-    color: '#4ECDC4',
+    color: '#042f2e',
   },
   {
     id: 3,
@@ -30,9 +30,20 @@ const appointmentData = [
     time: '02:00 PM',
     duration: '60 min',
     location: 'Movement Rehabilitation Center',
-    image: require('../assets/images/3.png'),
-    color: '#45B7D1',
+    image: require('../assets/images/7.png'),
+    color: '#0d9488',
   },
+  {
+    id: 4,
+    doctorName: 'Dr. Philip Johnson',
+    specialty: 'Dermatologist',
+    time: '05:00 PM',
+    duration: '120 min',
+    location: 'Dermaltology center',
+    image: require('../assets/images/6.png'),
+    color: '#075985',
+  },
+
 ];
 
 const TodaysAppointments = () => {
@@ -95,7 +106,7 @@ const TodaysAppointments = () => {
                 <Text style={styles.modalDoctorName}>{selectedAppointment.doctorName}</Text>
                 <Text style={styles.modalSpecialty}>{selectedAppointment.specialty}</Text>
                 <View style={styles.infoRow}>
-                  <Ionicons name="time-outline" size={24} color="#FFF" />
+                  <Ionicons name="time-outline" size={24} color="#fff" />
                   <Text style={styles.infoText}>{selectedAppointment.time}</Text>
                 </View>
                 <View style={styles.infoRow}>
@@ -126,6 +137,7 @@ const TodaysAppointments = () => {
 const styles = StyleSheet.create({
   container: {
     marginBottom: 20,
+    height: 265,
   },
   title: {
     fontSize: 20,
@@ -135,7 +147,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
   appointmentCard: {
-    width: 160,
+    width: 180,
     height: 220,
     borderRadius: 20,
     padding: 15,
@@ -143,16 +155,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
     elevation: 5,
+    borderWidth : 1,
+    borderColor: '#334155',
+    
   },
   timeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   timeText: {
-    color: '#FFF',
+    color: '#4BE3AC',
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 5,

@@ -113,10 +113,9 @@ export default function Dashboard() {
           </View>
         </ImageBackground>
       </View>
-      <View style={styles.myReminders} className="mt-9" >
-       <Reminders />
-      </View>
-
+      <View style={styles.appointmentsContainer} className="mt-9">
+<Appointments/>
+      </View >
       {/* Upcoming Schedule */}
       <View style={styles.upcomingSchedule}>
         <View style={styles.upcomingScheduleHeader}>
@@ -145,6 +144,10 @@ export default function Dashboard() {
           ))}
         </View>
       </View>
+      <View style={styles.myReminders} className="mt-3" >
+       <Reminders />
+      </View>
+
 
       {/* Modal for Schedule Details */}
       {selectedSchedule && (
@@ -179,9 +182,7 @@ export default function Dashboard() {
         {/* upcoming medication reminders */}
         <Medlist/>
       </View>
-      <View style={styles.appointmentsContainer}>
-<Appointments/>
-      </View >
+    
       <View style={styles.healthstats}>
        <HealthStats/>
   
