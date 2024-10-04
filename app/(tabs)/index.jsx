@@ -5,6 +5,7 @@ import { Stack } from 'expo-router';
 import Medlist from "../../components/Medlist"
 import Appointments from "../../components/Appointments"
 import HealthStats from "../../components/HealthStats"
+import Reminders from "../../components/Reminders"
 
 
 export default function Dashboard() {
@@ -112,6 +113,9 @@ export default function Dashboard() {
           </View>
         </ImageBackground>
       </View>
+      <View style={styles.myReminders} className="mt-9" >
+       <Reminders />
+      </View>
 
       {/* Upcoming Schedule */}
       <View style={styles.upcomingSchedule}>
@@ -169,18 +173,7 @@ export default function Dashboard() {
           </View>
         </Modal>
       )}
-      <View style={styles.myReminders}>
-        <View style={styles.myRemindersHeader}>
-          <Text style={styles.myRemindersTitle}>My Reminders</Text>
-            <TouchableOpacity>
-                <Text style={styles.seeAllText}>See All</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.addReminderButton}>
-                <Ionicons name="add-circle-outline" size={24} color="#FFF" />
-              </TouchableOpacity>
-  </View>
-      </View>
+    
       <View style={styles.medContainer}>
         {/* today's medication plan */}
         {/* upcoming medication reminders */}
@@ -205,6 +198,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flexGrow: 1,
   },
+ 
   headerContainer: {
     width: '100%',
     height: 400,

@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, ScrollView, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LineChart } from 'react-native-chart-kit';
 
 const organData = [
   {
     id: 1,
     name: 'Heart',
-    image: require('../assets/images/heart2.png'),
+    image: require('../assets/images/heart.png'),
     health: 92,
     doctor: 'Dr. Emily Cardio',
     lastCheckup: '2023-09-15',
@@ -114,6 +113,19 @@ const HealthStats = () => {
     </View>
   );
 
+  const renderCustomChart = (data) => {
+    const maxValue = Math.max(...data);
+    return (
+      <View style={styles.chartContainer}>
+        {data.map((value, index) => (
+          <View key={index} style={styles.chartBarContainer}>
+            <View style={[styles.chartBar, { height: `${(value / maxValue) * 100}%` }]} />
+          </View>
+        ))}
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Health Stats</Text>
@@ -189,26 +201,7 @@ const HealthStats = () => {
                 <Text style={styles.detailsTitle}>Details:</Text>
                 <Text style={styles.detailsText}>{selectedOrgan.details}</Text>
                 <Text style={styles.chartTitle}>Health Trend</Text>
-                <LineChart
-                  data={{
-                    labels: ['', '', '', '', ''],
-                    datasets: [{ data: selectedOrgan.chartData }],
-                  }}
-                  width={300}
-                  height={200}
-                  chartConfig={{
-                    backgroundColor: '#1E2923',
-                    backgroundGradientFrom: '#1E2923',
-                    backgroundGradientTo: '#08130D',
-                    decimalPlaces: 0,
-                    color: (opacity = 1) => `rgba(74, 144, 226, ${opacity})`,
-                    style: {
-                      borderRadius: 16,
-                    },
-                  }}
-                  bezier
-                  style={styles.chart}
-                />
+                {renderCustomChart(selectedOrgan.chartData)}
               </ScrollView>
             )}
           </Animated.View>
@@ -219,176 +212,185 @@ const HealthStats = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#161622',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFF',
-    marginBottom: 20,
-  },
-  organContainer: {
+    container: {
+        backgroundColor: '#161622',
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 20,
+      },
+      title: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginBottom: 20,
+      },
+      organContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+      },
+      organItem: {
+        width: '48%',
+        backgroundColor: '#2E383F',
+        borderRadius: 15,
+        padding: 15,
+        alignItems: 'center',
+        marginBottom: 15,
+      },
+      organImage: {
+        width: 80,
+        height: 80,
+        marginBottom: 10,
+      },
+      organName: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginBottom: 5,
+      },
+      organHealth: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#4A90E2',
+      },
+      medicationAdherenceContainer: {
+        marginTop: 20,
+      },
+      sectionTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginBottom: 15,
+      },
+      overallAdherenceContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 15,
+      },
+      overallAdherenceText: {
+        fontSize: 18,
+        color: '#FFF',
+      },
+      overallAdherencePercentage: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#4A90E2',
+      },
+      medicationItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 10,
+      },
+      medicationName: {
+        flex: 2,
+        fontSize: 16,
+        color: '#FFF',
+      },
+      adherenceBarContainer: {
+        flex: 3,
+        height: 10,
+        backgroundColor: '#2E383F',
+        borderRadius: 5,
+        marginHorizontal: 10,
+      },
+      adherenceBar: {
+        height: '100%',
+        backgroundColor: '#4A90E2',
+        borderRadius: 5,
+      },
+      adherencePercentage: {
+        flex: 1,
+        fontSize: 16,
+        color: '#4A90E2',
+        textAlign: 'right',
+      },
+      modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      },
+      modalContent: {
+        backgroundColor: '#161622',
+        borderRadius: 20,
+        padding: 20,
+        width: '90%',
+        maxHeight: '80%',
+      },
+      closeButton: {
+        alignSelf: 'flex-end',
+        padding: 10,
+      },
+      modalOrganImage: {
+        width: 120,
+        height: 120,
+        alignSelf: 'center',
+        marginBottom: 20,
+      },
+      modalOrganName: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#FFF',
+        textAlign: 'center',
+        marginBottom: 10,
+      },
+      healthPercentageContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 20,
+      },
+      healthPercentageText: {
+        fontSize: 18,
+        color: '#FFF',
+        marginRight: 10,
+      },
+      healthPercentage: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#4A90E2',
+      },
+      infoRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 15,
+      },
+      infoText: {
+        fontSize: 16,
+        color: '#FFF',
+        marginLeft: 10,
+      },
+      detailsTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#FFF',
+        marginBottom: 10,
+      },
+      detailsText: {
+        fontSize: 16,
+        color: '#BBB',
+        lineHeight: 24,
+        marginBottom: 20,
+      },
+  chartContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    height: 200,
     justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    marginTop: 10,
   },
-  organItem: {
-    width: '48%',
-    backgroundColor: '#2E383F',
-    borderRadius: 15,
-    padding: 15,
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  organImage: {
-    width: 80,
-    height: 80,
-    marginBottom: 10,
-  },
-  organName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFF',
-    marginBottom: 5,
-  },
-  organHealth: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#4A90E2',
-  },
-  medicationAdherenceContainer: {
-    marginTop: 20,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FFF',
-    marginBottom: 15,
-  },
-  overallAdherenceContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  overallAdherenceText: {
-    fontSize: 18,
-    color: '#FFF',
-  },
-  overallAdherencePercentage: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#4A90E2',
-  },
-  medicationItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  medicationName: {
-    flex: 2,
-    fontSize: 16,
-    color: '#FFF',
-  },
-  adherenceBarContainer: {
-    flex: 3,
-    height: 10,
-    backgroundColor: '#2E383F',
-    borderRadius: 5,
-    marginHorizontal: 10,
-  },
-  adherenceBar: {
+  chartBarContainer: {
+    flex: 1,
     height: '100%',
+    justifyContent: 'flex-end',
+    marginHorizontal: 2,
+  },
+  chartBar: {
+    width: '100%',
     backgroundColor: '#4A90E2',
-    borderRadius: 5,
-  },
-  adherencePercentage: {
-    flex: 1,
-    fontSize: 16,
-    color: '#4A90E2',
-    textAlign: 'right',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: '#161622',
-    borderRadius: 20,
-    padding: 20,
-    width: '90%',
-    maxHeight: '80%',
-  },
-  closeButton: {
-    alignSelf: 'flex-end',
-    padding: 10,
-  },
-  modalOrganImage: {
-    width: 120,
-    height: 120,
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
-  modalOrganName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFF',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  healthPercentageContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  healthPercentageText: {
-    fontSize: 18,
-    color: '#FFF',
-    marginRight: 10,
-  },
-  healthPercentage: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#4A90E2',
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  infoText: {
-    fontSize: 16,
-    color: '#FFF',
-    marginLeft: 10,
-  },
-  detailsTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFF',
-    marginBottom: 10,
-  },
-  detailsText: {
-    fontSize: 16,
-    color: '#BBB',
-    lineHeight: 24,
-    marginBottom: 20,
-  },
-  chartTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#FFF',
-    marginBottom: 10,
-  },
-  chart: {
-    marginVertical: 8,
-    borderRadius: 16,
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
   },
 });
 
