@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, ImageBackground, TextInput, TouchableOpacity, Image, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
+import Medlist from "../../components/Medlist"
+import Appointments from "../../components/Appointments"
 
 
 export default function Dashboard() {
@@ -177,6 +179,14 @@ export default function Dashboard() {
                 <Ionicons name="add-circle-outline" size={24} color="#FFF" />
               </TouchableOpacity>
   </View>
+      </View>
+      <View style={styles.medContainer}>
+        {/* today's medication plan */}
+        {/* upcoming medication reminders */}
+        <Medlist/>
+      </View>
+      <View style={styles.appointmentsContainer}>
+<Appointments/>
       </View>
     </ScrollView>
   );

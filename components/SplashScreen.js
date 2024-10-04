@@ -139,7 +139,7 @@ const SplashScreen = () => {
                     loop
                     style={styles.lottie}
                   /> */}
-                  <Image source={require('../assets/images/fav.png')} style={styles.lottie}/>
+                  <Image source={require('../assets/images/healthmaster.png')} style={styles.lottie}/>
                 </View>
               </Animated.View>
               <Animated.Text style={[styles.title, { opacity: fadeAnim }]}>
@@ -200,22 +200,22 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   Lott:{
-    backgroundColor:'hsl(240 3.7% 15.9%)',
-    width:55,
-    height:55,
+    // backgroundColor:'hsl(240 3.7% 15.9%)',
+    // width:75,
+    // height:75,
     padding:4,
     marginTop:120,
     borderRadius:50,
   },
   lottie: {
-    width: 50,
-    height: 50,
+    width: 85,
+    height: 85,
   },
   title: {
     color: 'white',
     fontSize: 36,
     fontWeight: 'bold',
-    marginLeft: 10,
+    marginLeft: -10,
     marginTop:120,
     fontFamily: 'Outfit-Bold',
   },
