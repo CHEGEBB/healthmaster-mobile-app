@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import Medlist from "../../components/Medlist"
 import Appointments from "../../components/Appointments"
+import HealthStats from "../../components/HealthStats"
 
 
 export default function Dashboard() {
@@ -187,6 +188,10 @@ export default function Dashboard() {
       </View>
       <View style={styles.appointmentsContainer}>
 <Appointments/>
+      </View >
+      <View style={styles.healthstats}>
+       <HealthStats/>
+  
       </View>
     </ScrollView>
   );
