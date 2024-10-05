@@ -349,7 +349,7 @@ profileContainer: {
     borderRadius: 20,
     elevation: 5,
     overflow: 'hidden',
-    width: '90%',
+    width: '100%',
     marginLeft: 'auto',
     marginRight: 'auto',
   },
