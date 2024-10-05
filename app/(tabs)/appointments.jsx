@@ -362,7 +362,7 @@ const Appointments = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#334155',
   },
   headerContainer: {
     height: 200,
