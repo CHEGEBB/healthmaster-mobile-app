@@ -204,6 +204,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     width: '100%',
     height: 400,
+    position: 'relative',
   },
   imageContainer: {
     flex: 1,
@@ -236,6 +237,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#FFF',
+    fontFamily: 'Poppins-Bold',
+
  
 },
 iconButton: {

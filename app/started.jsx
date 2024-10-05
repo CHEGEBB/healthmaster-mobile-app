@@ -34,7 +34,7 @@ const Started = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % content.length);
-    }, 5000);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, []);
@@ -81,6 +81,8 @@ export default Started;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    fontFamily: 'Poppins-Regular',
+
   },
   imageContainer: {
     flex: 1,
@@ -98,6 +100,8 @@ const styles = StyleSheet.create({
   textContainer: {
     alignItems: 'center',
     marginBottom: 40,
+    fontFamily: 'Poppins-Regular',
+
   },
   icon: {
     marginBottom: 20,
@@ -108,12 +112,16 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
     marginBottom: 10,
+    fontFamily: 'Poppins-Regular',
+
   },
   textDescription: {
     fontSize: 16,
     color: '#fff',
     textAlign: 'center',
     marginBottom: 20,
+    fontFamily: 'Rubik-Regular',
+
   },
   button: {
     flexDirection: 'row',

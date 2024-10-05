@@ -249,9 +249,9 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
     paddingVertical: 15,
-    fontFamily: 'Raleway-Light',
+    fontFamily: 'Poppins-Regular',
 
   },
   button: {
@@ -273,8 +273,8 @@ const styles = StyleSheet.create({
   },
   loginLinkText: {
     color: '#fff',
-    fontSize: 14,
-    fontFamily: 'Raleway-Light',
+    fontSize: 13,
+    fontFamily: 'Poppins-Regular',
 
   },
   confetti: {
@@ -295,9 +295,10 @@ const styles = StyleSheet.create({
     color: 'white',
     borderRadius: 20,
     padding: 30,
-    fontFamily: 'Raleway-Light',
     alignItems: 'center',
     shadowColor: '#000',
+    fontFamily: 'Poppins-Regular',
+
     shadowOffset: {
       width: 0,
       height: 2
@@ -330,12 +331,12 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     backgroundColor: '#4CAF50',
-    fontFamily: 'Raleway-Light',
+    fontFamily: 'Poppins-Regular',
 
   },
   stayButton: {
     backgroundColor: '#2196F3',
-    fontFamily: 'Raleway-Light',
+    fontFamily: 'Poppins-Regular',
 
   },
   modalButtonText: {
@@ -343,7 +344,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     fontSize: 16,
-    fontFamily: 'Raleway-Light',
+    fontFamily: 'Poppins-Regular',
 
   },
   lottie: {
@@ -356,7 +357,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginTop: 40,
     marginLeft: 15,
-    fontFamily: 'Raleway-Light',
+    fontFamily: 'Poppins-Regular',
 
   },
   nameContainer: {
@@ -365,7 +366,7 @@ const styles = StyleSheet.create({
     justifyContent:'center',
     alignItems:'center',
     marginBottom: 10,
-    fontFamily: 'Raleway-Light',
+    fontFamily: 'Poppins-Regular',
 
   },
   nameText: {
@@ -374,7 +375,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginLeft: 5,
     marginTop: 3,
-    fontFamily: 'Raleway-Light',
+    fontFamily: 'Poppins-Regular',
 
   },
   signupText: {
@@ -383,7 +384,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: -10,
     bottom: 10,
-    fontFamily: 'Raleway-Light',
+    fontFamily: 'Poppins-Regular',
 
   },
 

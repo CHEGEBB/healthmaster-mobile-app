@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, ImageBackground, StyleSheet, Dimensions, Animated, Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { Stack } from 'expo-router';
@@ -19,40 +19,62 @@ const carouselData = [
   {
     title: "Health Stats",
     text: "See your health stats and track your progress",
-    image: require('../assets/images/lungs.png'),
+    image: require('../assets/images/body.jpeg'),
   },
 ];
 
 export default function Land() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const scrollX = new Animated.Value(0);
+  const scrollX = useRef(new Animated.Value(0)).current;
   const position = Animated.divide(scrollX, width);
-  
+  const flatListRef = useRef(null);
+
+  const infiniteScroll = useRef(null);
+
+  const getItemLayout = (data, index) => ({
+    length: width,
+    offset: width * index,
+    index,
+  });
+
+  const onScroll = Animated.event(
+    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+    { useNativeDriver: false }
+  );
+
+  const infiniteCarouselData = [...carouselData, ...carouselData, ...carouselData];
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex((prevIndex) => 
-        prevIndex === carouselData.length - 1 ? 0 : prevIndex + 1
-      );
-    }, 5000);
+    const scrollToIndex = (index) => {
+      flatListRef.current.scrollToIndex({ index, animated: true });
+    };
 
-    return () => clearInterval(timer);
-  }, []);
+    infiniteScroll.current = setInterval(() => {
+      const newIndex = (currentIndex + 1) % carouselData.length;
+      setCurrentIndex(newIndex);
+      scrollToIndex(newIndex + carouselData.length);
+    }, 2000);
+
+    return () => {
+      if (infiniteScroll.current) {
+        clearInterval(infiniteScroll.current);
+      }
+    };
+  }, [currentIndex]);
+
+  const handleMomentumScrollEnd = (event) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const newIndex = Math.round(offsetX / width) % carouselData.length;
+    setCurrentIndex(newIndex);
+  };
 
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <Animated.ScrollView
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-          { useNativeDriver: false }
-        )}
-        scrollEventThrottle={16}
-      >
-        {carouselData.map((item, index) => (
+      <Animated.FlatList
+        ref={flatListRef}
+        data={infiniteCarouselData}
+        renderItem={({ item, index }) => (
           <View style={styles.slide} key={index}>
             <ImageBackground source={item.image} style={styles.imageContainer}>
               <View style={styles.textContainer}>
@@ -61,8 +83,17 @@ export default function Land() {
               </View>
             </ImageBackground>
           </View>
-        ))}
-      </Animated.ScrollView>
+        )}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        keyExtractor={(item, index) => `${item.title}-${index}`}
+        getItemLayout={getItemLayout}
+        initialScrollIndex={carouselData.length}
+        onMomentumScrollEnd={handleMomentumScrollEnd}
+      />
       <View style={styles.pagination}>
         {carouselData.map((_, i) => {
           const opacity = position.interpolate({
@@ -87,6 +118,7 @@ export default function Land() {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -120,7 +152,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#fff',
     fontFamily: 'Raleway-Regular',
-
   },
   pagination: {
     flexDirection: 'row',
@@ -134,7 +165,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: '#4BE3AC',
     margin: 5,
-    bottom:60,
+    bottom: 60,
   },
   button: {
     position: 'absolute',
@@ -144,7 +175,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 60,
     borderRadius: 10,
-    width : '60%',
+    width: '60%',
   },
   buttonText: {
     color: '#fff',

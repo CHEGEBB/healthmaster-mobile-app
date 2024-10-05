@@ -253,7 +253,8 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginLeft: 5,
     marginTop: -40,
-    fontFamily: 'Raleway-Light',
+    fontFamily: 'Poppins-Regular',
+
   },
   ContentContainer: {
     flex: 1,
@@ -284,9 +285,10 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     color: '#fff',
-    fontSize: 16,
+    fontSize: 14,
     paddingVertical: 15,
-    fontFamily: 'Raleway-Light',
+    fontFamily: 'Poppins-Regular',
+
   },
   loginButton: {
     backgroundColor: '#4BE3AC',
@@ -295,31 +297,45 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     marginTop: 20,
+    fontFamily: 'Poppins-Regular',
+
   },
   loginButtonText: {
     color: '#161622',
     fontSize: 18,
     fontWeight: 'bold',
+    fontFamily: 'Poppins-Regular',
+
   },
   forgotPasswordButton: {
     marginTop: 15,
+    fontFamily: 'Poppins-Regular',
+
   },
   forgotPasswordText: {
     color: '#4BE3AC',
     fontSize: 14,
+    fontFamily: 'Poppins-Regular',
+
   },
   signupContainer: {
     flexDirection: 'row',
     marginTop: 20,
+    fontFamily: 'Poppins-Regular',
+
   },
   signupText: {
     color: '#fff',
     fontSize: 14,
+    fontFamily: 'Poppins-Regular',
+
   },
   signupLink: {
     color: '#4BE3AC',
     fontSize: 14,
     fontWeight: 'bold',
+    fontFamily: 'Poppins-Regular',
+
   },
   login: {
     marginBottom: 10,
@@ -334,6 +350,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
     left: 4,
     color: '#4BE3AC',
+    fontFamily: 'Poppins-Regular',
+
   },
   socialsContainer: {
     flexDirection: 'row',
@@ -347,6 +365,8 @@ const styles = StyleSheet.create({
     marginRight: 10,
     fontSize: 14,
     marginTop: 10,
+    fontFamily: 'Poppins-Regular',
+
   },
   socialButton: {
     backgroundColor: '#3472CA',
@@ -371,6 +391,7 @@ const styles = StyleSheet.create({
     padding: 35,
     alignItems: 'center',
     shadowColor: '#000',
+    fontFamily: 'Poppins-Regular',
     shadowOffset: {
       width: 0,
       height: 2
@@ -385,6 +406,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
     fontWeight: 'bold',
+    fontFamily: 'Poppins-Regular',
+
   },
   confettiAnimation: {
     width: 200,

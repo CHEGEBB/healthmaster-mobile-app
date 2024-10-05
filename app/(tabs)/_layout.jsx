@@ -6,12 +6,11 @@ export default function TabsLayout() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        {/* Other content of your app can go here */}
       </View>
       <Tabs
         screenOptions={{
           tabBarStyle: {
-            backgroundColor: '#15151A',
+            backgroundColor: '#334155',
             borderTopWidth: 0,
             height: 64,
             paddingBottom: 8,
@@ -23,6 +22,7 @@ export default function TabsLayout() {
             right: 0,
             marginHorizontal: 10, 
             marginBottom: 10, 
+            
           },
           tabBarActiveTintColor: '#1EE2C7',
           tabBarInactiveTintColor: '#83839C',
