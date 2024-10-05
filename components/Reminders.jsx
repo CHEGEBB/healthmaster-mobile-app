@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Image, Modal, ScrollView, 
-  Animated, ImageBackground, Dimensions, Easing, SafeAreaView
+  Animated, ImageBackground, Dimensions, Easing
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import LottieView from 'lottie-react-native';
@@ -124,7 +124,7 @@ const MedicationReminders = () => {
         },
       ]}
     >
-      <BlurView intensity={80} tint="dark" style={styles.blurContainer}>
+      <BlurView intensity={80} style={styles.blurContainer}>
         <TouchableOpacity onPress={() => openModal(reminder)} style={styles.reminderContent}>
           <Image source={reminder.image} style={styles.reminderImage} />
           <View style={styles.reminderInfo}>
@@ -148,103 +148,112 @@ const MedicationReminders = () => {
       style={styles.container}
       resizeMode="cover"
     >
-      <SafeAreaView style={styles.safeArea}>
-        <BlurView intensity={20} tint="dark" style={styles.contentContainer}>
-          <View style={styles.headerContainer}>
-            <Text style={styles.title}>Today's Important Medications</Text>
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={toggleShowAll}
-              >
-                <Ionicons 
-                  name={showAllReminders ? "chevron-up-circle" : "chevron-down-circle"} 
-                  size={24} 
-                  color="#FFF" 
-                />
-                <Text style={styles.actionButtonText}>
-                  {showAllReminders ? 'Show Less' : 'See All'}
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.actionButton, styles.addButton]}
-                onPress={() => navigation.navigate('reminders')}
-              >
-                <Ionicons name="add-circle" size={24} color="#FFF" />
-                <Text style={styles.actionButtonText}>Add New</Text>
-              </TouchableOpacity>
-            </View>
+      <BlurView intensity={20} style={styles.contentContainer}>
+        <Animated.View style={styles.headerContainer}>
+          <Text style={styles.title}>Today's Important Medications</Text>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={toggleShowAll}
+            >
+              <Ionicons 
+                name={showAllReminders ? "chevron-up-circle" : "chevron-down-circle"} 
+                size={24} 
+                color="#FFF" 
+              />
+              <Text style={styles.actionButtonText}>
+                {showAllReminders ? 'Show Less' : 'See All'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.actionButton, styles.addButton]}
+              onPress={() => navigation.navigate('reminders')}
+            >
+              <Ionicons name="add-circle" size={24} color="#FFF" />
+              <Text style={styles.actionButtonText}>Add New</Text>
+            </TouchableOpacity>
           </View>
+        </Animated.View>
 
-          <ScrollView
-            style={styles.reminderList}
-            contentContainerStyle={styles.reminderListContent}
-          >
-            {displayedReminders.map(reminder => (
-              <ReminderCard key={reminder.id} reminder={reminder} />
-            ))}
-          </ScrollView>
+        <Animated.ScrollView
+          style={[
+            styles.reminderList,
+            {
+              transform: [
+                {
+                  translateY: slideAnimation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 20],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          {displayedReminders.map(reminder => (
+            <ReminderCard key={reminder.id} reminder={reminder} />
+          ))}
+        </Animated.ScrollView>
 
-          <Modal
-            animationType="none"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={closeModal}
-          >
-            <BlurView intensity={90} tint="dark" style={styles.modalContainer}>
-              <Animated.View
-                style={[
-                  styles.modalContent,
-                  {
-                    transform: [{ scale: scaleAnimation }],
-                  },
-                ]}
-              >
-                <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-                  <Ionicons name="close" size={24} color="#FFF" />
-                </TouchableOpacity>
-                {selectedReminder && (
-                  <ScrollView contentContainerStyle={styles.modalScroll}>
-                    <View style={styles.modalImageContainer}>
-                      <Image
-                        source={selectedReminder.image}
-                        style={styles.modalMedicationImage}
-                        resizeMode="contain"
-                      />
+        <Modal
+          animationType="none"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={closeModal}
+        >
+          <BlurView intensity={90} style={styles.modalContainer}>
+            <Animated.View
+              style={[
+                styles.modalContent,
+                {
+                  transform: [{ scale: scaleAnimation }],
+                },
+              ]}
+            >
+               <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+                <Ionicons name="close" size={24} color="#FFF" />
+              </TouchableOpacity>
+              {selectedReminder && (
+                <ScrollView contentContainerStyle={styles.modalScroll}>
+                  <View style={styles.modalImageContainer}>
+                    <Image
+                      source={selectedReminder.image}
+                      style={styles.modalMedicationImage}
+                      resizeMode="contain"
+                    />
+                  </View>
+                  <View style={styles.modalInfoContainer}>
+                    <Text style={styles.modalMedicationName}>{selectedReminder.name}</Text>
+                    <View style={styles.infoRow}>
+                      <Ionicons name="time" size={24} color="#4A90E2" />
+                      <Text style={styles.infoText}>Time: {selectedReminder.time}</Text>
                     </View>
-                    <View style={styles.modalInfoContainer}>
-                      <Text style={styles.modalMedicationName}>{selectedReminder.name}</Text>
-                      <View style={styles.infoRow}>
-                        <Ionicons name="time" size={24} color="#4A90E2" />
-                        <Text style={styles.infoText}>Time: {selectedReminder.time}</Text>
-                      </View>
-                      <View style={styles.infoRow}>
-                        <Ionicons name="information-circle" size={24} color="#4A90E2" />
-                        <Text style={styles.infoText}>Details: {selectedReminder.details}</Text>
-                      </View>
-                      <TouchableOpacity
-                        style={styles.takeNowButton}
-                        onPress={() => markAsComplete(selectedReminder.id)}
-                      >
-                        <Text style={styles.takeNowButtonText}>I'll take it now</Text>
-                      </TouchableOpacity>
+                    <View style={styles.infoRow}>
+                      <Ionicons name="information-circle" size={24} color="#4A90E2" />
+                      <Text style={styles.infoText}>Details: {selectedReminder.details}</Text>
                     </View>
-                  </ScrollView>
-                )}
-              </Animated.View>
-            </BlurView>
-          </Modal>
+                    <TouchableOpacity
+                      style={styles.takeNowButton}
+                      onPress={() => markAsComplete(selectedReminder.id)}
+                    >
+                      <Text style={styles.takeNowButtonText}>I'll take it now</Text>
+                    </TouchableOpacity>
+                  </View>
+                </ScrollView>
+              )}
+            </Animated.View>
+          </BlurView>
+        </Modal>
 
-          {confettiVisible && (
-            <LottieView
-              source={require('../assets/animations/confetti.json')}
-              autoPlay
-              loop={false}
-              style={styles.confetti}
-            />
-          )}
-        </BlurView>
-      </SafeAreaView>
+        {confettiVisible && (
+          <LottieView
+            source={require('../assets/animations/confetti.json')}
+            autoPlay
+            loop={false}
+            style={styles.confetti}
+          />
+        )}
+      </BlurView>
     </ImageBackground>
   );
 };
@@ -252,22 +261,19 @@ const MedicationReminders = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
-  },
-  safeArea: {
-    flex: 1,
+    width: SCREEN_WIDTH * 0.8,
+    height: SCREEN_HEIGHT* 0.8,
   },
   contentContainer: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 40,
   },
   headerContainer: {
     marginBottom: 20,
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
     color: '#FFF',
     textAlign: 'center',
@@ -301,9 +307,6 @@ const styles = StyleSheet.create({
   reminderList: {
     flex: 1,
   },
-  reminderListContent: {
-    paddingBottom: 20,
-  },
   blurContainer: {
     borderRadius: 20,
     overflow: 'hidden',
@@ -318,22 +321,22 @@ const styles = StyleSheet.create({
     padding: 15,
   },
   reminderImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 70,
+    height: 70,
+    borderRadius: 35,
     marginRight: 15,
   },
   reminderInfo: {
     flex: 1,
   },
   reminderName: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#FFF',
     marginBottom: 5,
   },
   reminderTime: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#FFF',
     opacity: 0.8,
   },
@@ -365,14 +368,17 @@ const styles = StyleSheet.create({
     right: 10,
     zIndex: 1,
   },
+  modalScroll: {
+    flexGrow: 1,
+  },
   modalImageContainer: {
     alignItems: 'center',
     marginBottom: 20,
   },
   modalMedicationImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
+    width: SCREEN_WIDTH * 0.5,
+    height: SCREEN_WIDTH * 0.5,
+    borderRadius: 20,
   },
   modalInfoContainer: {
     alignItems: 'center',

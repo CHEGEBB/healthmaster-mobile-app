@@ -144,9 +144,7 @@ export default function Dashboard() {
           ))}
         </View>
       </View>
-      <View style={styles.myReminders} className="mt-3" >
-       <Reminders />
-      </View>
+    
 
 
       {/* Modal for Schedule Details */}
@@ -181,6 +179,9 @@ export default function Dashboard() {
         {/* today's medication plan */}
         {/* upcoming medication reminders */}
         <Medlist/>
+      </View>
+      <View style={styles.myReminders} className="mt-3" >
+       <Reminders />
       </View>
     
       <View style={styles.healthstats}>
