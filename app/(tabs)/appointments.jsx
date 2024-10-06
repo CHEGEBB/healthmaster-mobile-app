@@ -248,11 +248,11 @@ const Appointments = () => {
       <Stack.Screen options={{ headerShown: false }} />
       
       <View style={styles.header}>
-        <TouchableOpacity style={styles.profileButton}>
+        <TouchableOpacity style={styles.profileButton} >
           <Ionicons name="person-circle-outline" size={32} color="#FFFFFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Appointments</Text>
-        <TouchableOpacity style={styles.notificationButton} onPress={toggleNotifications}>
+        <Text style={styles.headerTitle} >Appointments</Text>
+        <TouchableOpacity style={styles.notificationButton} onPress={toggleNotifications} >
           <Ionicons name="notifications-outline" size={24} color="#FFFFFF" />
           <View style={styles.notificationBadge}>
             <Text style={styles.notificationCount}>{notificationCount}</Text>
@@ -270,8 +270,8 @@ const Appointments = () => {
               { id: 3, message: 'Your prescription is ready for pickup', icon: 'medical-outline' },
             ]}
             renderItem={({ item }) => (
-              <View style={styles.notificationItem}>
-                <Ionicons name={item.icon} size={24} color="#FFFFFF" style={styles.notificationIcon} />
+              <View style={styles.notificationItem} className="border border-green-400">
+                <Ionicons name={item.icon} size={24} color="#4ade80" style={styles.notificationIcon} />
                 <Text style={styles.notificationText}>{item.message}</Text>
               </View>
             )}
@@ -595,13 +595,14 @@ const styles = StyleSheet.create({
   },
   notificationContainer: {
     position: 'absolute',
-    top: 100,
-    right: 20,
+    top: 40,
+    right: 80,
     width: SCREEN_WIDTH * 0.8,
     maxHeight: 300,
     borderRadius: 20,
     overflow: 'hidden',
     zIndex: 1000,
+    backgroundColor: '#334155',
   },
   notificationBlur: {
     padding: 20,
@@ -615,7 +616,7 @@ const styles = StyleSheet.create({
   notificationItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     borderRadius: 10,
     padding: 10,
     marginBottom: 10,
