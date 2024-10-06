@@ -1,32 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { ImageBackground, ScrollView, StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, FlatList, Image } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, Modal, TextInput, FlatList, StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import LottieView from 'lottie-react-native';
 import { Calendar } from 'react-native-calendars';
 import { Stack } from 'expo-router';
+import Animated, { FadeInRight, FadeOutLeft } from 'react-native-reanimated';
 
+const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
 const Appointments = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [activeTab, setActiveTab] = useState('upcoming');
-  const [showAppointmentForm, setShowAppointmentForm] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
-  const [appointmentDetails, setAppointmentDetails] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    date: '',
-    time: '',
-    reason: '',
-  });
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
+  const [reason, setReason] = useState('');
+  const [severity, setSeverity] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(3);
 
   const doctors = [
     { id: 1, name: 'Dr. John Doe', specialization: 'Cardiologist', image: require('../../assets/images/1.png'), rating: 4.8, patients: 1000, availability: '9:00 AM - 5:00 PM' },
     { id: 2, name: 'Dr. Jane Smith', specialization: 'Dermatologist', image: require('../../assets/images/2.png'), rating: 4.9, patients: 1200, availability: '10:00 AM - 6:00 PM' },
     { id: 3, name: 'Dr. Mike Johnson', specialization: 'Pediatrician', image: require('../../assets/images/3.png'), rating: 4.7, patients: 800, availability: '8:00 AM - 4:00 PM' },
     { id: 4, name: 'Dr. Sarah Brown', specialization: 'Neurologist', image: require('../../assets/images/4.png'), rating: 4.6, patients: 950, availability: '11:00 AM - 7:00 PM' },
+  ];
+
+  const todayAppointments = [
+    { id: 1, doctorName: 'Dr. John Doe', time: '10:00 AM', image: require('../../assets/images/1.png') },
+    { id: 2, doctorName: 'Dr. Jane Smith', time: '2:00 PM', image: require('../../assets/images/2.png') },
+    { id: 3, doctorName: 'Dr. Mike Johnson', time: '11:30 AM', image: require('../../assets/images/3.png') },
+    { id: 4, doctorName: 'Dr. Sarah Brown', time: '3:30 PM', image: require('../../assets/images/4.png') },
+    { id: 5, doctorName: 'Dr. Alex Wilson', time: '5:00 PM', image: require('../../assets/images/5.png') },
+    { id: 6, doctorName: 'Dr. Emily Clark', time: '6:30 PM', image: require('../../assets/images/6.png') },
   ];
 
   const appointments = [
@@ -45,137 +54,254 @@ const Appointments = () => {
     { id: 4, doctorName: 'Dr. Sarah Brown', date: '2024-05-15', diagnosis: 'Headache treatment', image: require('../../assets/images/4.png') },
   ];
 
-  const renderAppointmentCard = ({ item }) => (
-    <View style={[styles.appointmentCard, getStatusColor(item.status)]}>
-      <View style={styles.appointmentDateColumn}>
-        <Text style={styles.appointmentDate}>{new Date(item.date).getDate()}</Text>
-        <Text style={styles.appointmentMonth}>{new Date(item.date).toLocaleString('default', { month: 'short' })}</Text>
-      </View>
-      <Image source={item.image} style={styles.doctorImage} />
-      <View style={styles.appointmentDetails}>
-        <Text style={styles.appointmentDoctorName}>{item.doctorName}</Text>
-        <Text style={styles.appointmentTime}>{item.time}</Text>
-        <View style={styles.appointmentInfoBar}>
-          <Ionicons name="time-outline" size={16} color="#007AFF" />
-          <Text style={styles.appointmentInfoText}>{item.time}</Text>
-          <Ionicons name="calendar-outline" size={16} color="#007AFF" />
-          <Text style={styles.appointmentInfoText}>{new Date(item.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</Text>
-        </View>
-      </View>
-      <View style={styles.appointmentActions}>
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="call" size={24} color="#007AFF" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="videocam" size={24} color="#007AFF" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="ellipsis-vertical" size={24} color="#007AFF" />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+  const categories = [
+    { id: 1, name: 'Cardiology', color: '#FF6B6B' },
+    { id: 2, name: 'Dermatology', color: '#4ECDC4' },
+    { id: 3, name: 'Pediatrics', color: '#45B7D1' },
+    { id: 4, name: 'Neurology', color: '#FFA07A' },
+    { id: 5, name: 'Orthopedics', color: '#98D8C8' },
+  ];
 
-  const renderRecentVisitCard = ({ item }) => (
-    <View style={styles.recentVisitCard}>
-      <Image source={item.image} style={styles.recentVisitDoctorImage} />
-      <Text style={styles.recentVisitDate}>{item.date}</Text>
-      <Text style={styles.recentVisitDoctorName}>{item.doctorName}</Text>
-      <Text style={styles.recentVisitDiagnosis}>{item.diagnosis}</Text>
-    </View>
-  );
+  const availableSlots = [
+    '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM',
+    '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM'
+  ];
 
-  const renderDoctorCard = ({ item }) => (
-    <TouchableOpacity style={styles.doctorCard} onPress={() => handleDoctorSelect(item)}>
-      <Image source={item.image} style={styles.doctorImage} />
-      <Text style={styles.doctorName}>{item.name}</Text>
-      <Text style={styles.doctorSpecialization}>{item.specialization}</Text>
-      <View style={styles.doctorRating}>
-        <Ionicons name="star" size={16} color="#FFD700" />
-        <Text style={styles.doctorRatingText}>{item.rating}</Text>
-      </View>
-      <Text style={styles.doctorPatients}>{item.patients} patients</Text>
-      <Text style={styles.doctorAvailability}>{item.availability}</Text>
-      <TouchableOpacity style={styles.bookButton} onPress={() => handleBookAppointment(item)}>
-        <Text style={styles.bookButtonText}>Book Appointment</Text>
-      </TouchableOpacity>
+  const renderTodayAppointmentCard = ({ item }) => (
+    <TouchableOpacity style={styles.todayAppointmentCard}>
+      <LinearGradient
+        colors={['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.05)']}
+        style={styles.todayAppointmentGradient}
+      >
+        <BlurView intensity={20} style={styles.blurView}>
+          <Image source={item.image} style={styles.todayDoctorImage} />
+          <Text style={styles.todayDoctorName}>{item.doctorName}</Text>
+          <Text style={styles.todayAppointmentTime}>{item.time}</Text>
+        </BlurView>
+      </LinearGradient>
     </TouchableOpacity>
   );
 
-  const handleDoctorSelect = (doctor) => {
-    setSelectedDoctor(doctor);
-    setShowAppointmentForm(true);
+  const renderAppointmentCard = ({ item }) => (
+    <TouchableOpacity style={[styles.appointmentCard, getStatusColor(item.status)]}>
+      <Image source={item.image} style={styles.doctorImage} />
+      <View style={styles.appointmentDetails}>
+        <Text style={styles.appointmentDoctorName}>{item.doctorName}</Text>
+        <Text style={styles.appointmentDate}>{item.date}</Text>
+        <Text style={styles.appointmentTime}>{item.time}</Text>
+        <Text style={styles.appointmentStatus}>{item.status}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const renderRecentVisitCard = ({ item }) => (
+    <TouchableOpacity style={styles.recentVisitCard}>
+      <LinearGradient
+        colors={['#FFD700', '#FFA500']}
+        style={styles.recentVisitGradient}
+      >
+        <Image source={item.image} style={styles.recentVisitDoctorImage} />
+        <Text style={styles.recentVisitDoctorName}>{item.doctorName}</Text>
+        <Text style={styles.recentVisitDate}>{item.date}</Text>
+        <Text style={styles.recentVisitDiagnosis}>{item.diagnosis}</Text>
+      </LinearGradient>
+    </TouchableOpacity>
+  );
+
+  const renderDoctorCard = ({ item }) => (
+    <TouchableOpacity style={styles.doctorCard} onPress={() => setSelectedDoctor(item)}>
+      <Image source={item.image} style={styles.doctorCardImage} />
+      <View style={styles.doctorCardDetails}>
+        <Text style={styles.doctorCardName}>{item.name}</Text>
+        <Text style={styles.doctorCardSpecialization}>{item.specialization}</Text>
+        <View style={styles.doctorCardRating}>
+          <Ionicons name="star" size={16} color="#FFD700" />
+          <Text style={styles.doctorCardRatingText}>{item.rating}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const renderCategoryCard = ({ item }) => (
+    <TouchableOpacity style={[styles.categoryCard, { backgroundColor: item.color }]}>
+      <Text style={styles.categoryName}>{item.name}</Text>
+    </TouchableOpacity>
+  );
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'completed':
+        return { borderColor: '#4CAF50' };
+      case 'cancelled':
+        return { borderColor: '#F44336' };
+      case 'upcoming':
+        return { borderColor: '#2196F3' };
+      default:
+        return {};
+    }
   };
 
   const handleBookAppointment = () => {
     setShowSuccessModal(true);
     setTimeout(() => {
       setShowSuccessModal(false);
-      setShowAppointmentForm(false);
       setSelectedDoctor(null);
-      setAppointmentDetails({
-        name: '',
-        email: '',
-        phone: '',
-        date: '',
-        time: '',
-        reason: '',
-      });
-    }, 3000);
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'completed':
-        return { borderLeftColor: '#4CAF50' };
-      case 'cancelled':
-        return { borderLeftColor: '#F44336' };
-      case 'upcoming':
-        return { borderLeftColor: '#2196F3' };
-      default:
-        return {};
-    }
+      setSelectedDate('');
+      setSelectedTime('');
+      setReason('');
+      setSeverity('');
+      setNotificationCount(prevCount => prevCount + 1);
+    }, 6000);
   };
 
   return (
-    <ScrollView style={styles.container}>
-                    <Stack.Screen options={{ headerShown: false }} />
-      <View style={styles.headerContainer}>
-        <ImageBackground source={require('../../assets/images/new2.jpeg')} style={styles.backgroundImage}>
-          <View style={styles.headerTop}>
-            <TouchableOpacity style={styles.profileButton}>
-              <Ionicons name="person-circle-outline" size={32} color="#FFFFFF" />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Appointments</Text>
-            <TouchableOpacity style={styles.notificationButton} onPress={() => setShowNotifications(true)}>
-              <Ionicons name="notifications-outline" size={24} color="#FFFFFF" />
-              <View style={styles.notificationBadge}>
-                <Text style={styles.notificationCount}>3</Text>
-              </View>
-            </TouchableOpacity>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <Stack.Screen options={{ headerShown: false }} />
+      
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.profileButton}>
+          <Ionicons name="person-circle-outline" size={32} color="#FFFFFF" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Appointments</Text>
+        <TouchableOpacity style={styles.notificationButton} onPress={() => setShowNotifications(true)}>
+          <Ionicons name="notifications-outline" size={24} color="#FFFFFF" />
+          <View style={styles.notificationBadge}>
+            <Text style={styles.notificationCount}>{notificationCount}</Text>
           </View>
-          <View style={styles.headerBottom}>
-            <TouchableOpacity style={styles.calendarButton} onPress={() => setShowCalendar(true)}>
-              <Ionicons name="calendar-outline" size={24} color="#FFFFFF" />
-              <Text style={styles.calendarDate}>{new Date().toLocaleDateString()}</Text>
-            </TouchableOpacity>
-          </View>
-        </ImageBackground>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.todayAppointments}>
         <Text style={styles.sectionTitle}>Today's Appointments</Text>
         <FlatList
+          data={todayAppointments}
+          renderItem={renderTodayAppointmentCard}
+          keyExtractor={item => item.id.toString()}
           horizontal
           showsHorizontalScrollIndicator={false}
-          data={appointments.filter(a => a.date === new Date().toISOString().split('T')[0])}
-          renderItem={renderAppointmentCard}
-          keyExtractor={item => item.id.toString()}
-          contentContainerStyle={styles.appointmentList}
+          contentContainerStyle={styles.todayAppointmentList}
         />
       </View>
 
-      <View style={styles.appointmentsContainer}>
+      <View style={styles.findDoctor}>
+        <Text style={styles.sectionTitle}>Find a Doctor</Text>
+        <View style={styles.searchBar}>
+          <Ionicons name="search-outline" size={24} color="#FFFFFF" />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search doctors..."
+            placeholderTextColor="#CCCCCC"
+          />
+        </View>
+        <FlatList
+          data={doctors}
+          renderItem={renderDoctorCard}
+          keyExtractor={item => item.id.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.doctorList}
+        />
+      </View>
+
+      <View style={styles.categories}>
+        <Text style={styles.sectionTitle}>Categories</Text>
+        <FlatList
+          data={categories}
+          renderItem={renderCategoryCard}
+          keyExtractor={item => item.id.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoryList}
+        />
+      </View>
+
+      <View style={styles.bookAppointment}>
+        <Text style={styles.sectionTitle}>Book Appointment Now</Text>
+        <Calendar
+          markedDates={{
+            '2024-06-07': { marked: true, dotColor: '#4CAF50' },
+            '2024-06-08': { marked: true, dotColor: '#4CAF50' },
+            '2024-06-09': { marked: true, dotColor: '#4CAF50' },
+          }}
+          theme={{
+            backgroundColor: '#1e293b',
+            calendarBackground: '#1e293b',
+            textSectionTitleColor: '#FFFFFF',
+            selectedDayBackgroundColor: '#4CAF50',
+            selectedDayTextColor: '#FFFFFF',
+            todayTextColor: '#4CAF50',
+            dayTextColor: '#FFFFFF',
+            textDisabledColor: '#555555',
+            dotColor: '#4CAF50',
+            selectedDotColor: '#FFFFFF',
+            arrowColor: '#4CAF50',
+            monthTextColor: '#FFFFFF',
+          }}
+          onDayPress={(day) => setSelectedDate(day.dateString)}
+        />
+        <View style={styles.timeSlots}>
+          {availableSlots.map((slot, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.timeSlot,
+                selectedTime === slot && styles.selectedTimeSlot
+              ]}
+              onPress={() => setSelectedTime(slot)}
+            >
+              <Text style={[
+                styles.timeSlotText,
+                selectedTime === slot && styles.selectedTimeSlotText
+              ]}>{slot}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <View style={styles.doctorSelection}>
+          <Text style={styles.formLabel}>Choose Doctor</Text>
+          <FlatList
+            data={doctors}
+            renderItem={renderDoctorCard}
+            keyExtractor={item => item.id.toString()}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+          />
+        </View>
+        <View style={styles.reasonInput}>
+          <Text style={styles.formLabel}>Reason for Appointment</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter reason..."
+            placeholderTextColor="#CCCCCC"
+            value={reason}
+            onChangeText={setReason}
+          />
+	</View>
+        <View style={styles.severitySelection}>
+          <Text style={styles.formLabel}>Condition Severity</Text>
+          <View style={styles.severityOptions}>
+            {['Mild', 'Moderate', 'Severe'].map((option) => (
+              <TouchableOpacity
+                key={option}
+                style={[
+                  styles.severityOption,
+                  severity === option && styles.selectedSeverityOption
+                ]}
+                onPress={() => setSeverity(option)}
+              >
+                <Text style={[
+                  styles.severityOptionText,
+                  severity === option && styles.selectedSeverityOptionText
+                ]}>{option}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+        <TouchableOpacity style={styles.bookButton} onPress={handleBookAppointment}>
+          <Text style={styles.bookButtonText}>Book Appointment</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.appointments}>
         <View style={styles.tabContainer}>
           <TouchableOpacity
             style={[styles.tab, activeTab === 'upcoming' && styles.activeTab]}
@@ -210,25 +336,9 @@ const Appointments = () => {
           data={recentVisits}
           renderItem={renderRecentVisitCard}
           keyExtractor={item => item.id.toString()}
-          numColumns={2}
-          contentContainerStyle={styles.recentVisitList}
-        />
-      </View>
-
-      <View style={styles.findDoctor}>
-        <Text style={styles.sectionTitle}>Find a Doctor</Text>
-        <TextInput
-          style={styles.searchBar}
-          placeholder="Search doctors..."
-          placeholderTextColor="#999"
-        />
-        <FlatList
-          data={doctors}
-          renderItem={renderDoctorCard}
-          keyExtractor={item => item.id.toString()}
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.doctorList}
+          contentContainerStyle={styles.recentVisitList}
         />
       </View>
 
@@ -239,104 +349,29 @@ const Appointments = () => {
         onRequestClose={() => setShowNotifications(false)}
       >
         <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Notifications</Text>
-            <FlatList
-              data={[
-                { id: 1, message: 'Appointment reminder: Dr. John Doe in 1 hour' },
-                { id: 2, message: 'New message from Dr. Jane Smith' },
-                { id: 3, message: 'Your prescription is ready for pickup' },
-              ]}
-              renderItem={({ item }) => (
-                <View style={styles.notificationItem}>
-                  <Text>{item.message}</Text>
-                </View>
-              )}
-              keyExtractor={item => item.id.toString()}
-            />
-            <TouchableOpacity style={styles.closeButton} onPress={() => setShowNotifications(false)}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
+          <BlurView intensity={80} style={styles.modalBlur}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Notifications</Text>
+              <FlatList
+                data={[
+                  { id: 1, message: 'Appointment reminder: Dr. John Doe in 1 hour' },
+                  { id: 2, message: 'New message from Dr. Jane Smith' },
+                  { id: 3, message: 'Your prescription is ready for pickup' },
+                ]}
+                renderItem={({ item }) => (
+                  <View style={styles.notificationItem}>
+                    <Text style={styles.notificationText}>{item.message}</Text>
+                  </View>
+                )}
+                keyExtractor={item => item.id.toString()}
+              />
+              <TouchableOpacity style={styles.closeButton} onPress={() => setShowNotifications(false)}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </BlurView>
         </View>
       </Modal>
-
-      <Modal
-        visible={showCalendar}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowCalendar(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Appointment Calendar</Text>
-            <Calendar
-              markedDates={{
-                '2024-06-07': { marked: true, dotColor: '#2196F3' },
-                '2024-06-08': { marked: true, dotColor: '#2196F3' },
-                '2024-06-09': { marked: true, dotColor: '#2196F3' },
-                '2024-06-10': { marked: true, dotColor: '#2196F3' },
-                '2024-06-05': { marked: true, dotColor: '#4CAF50' },
-                '2024-06-06': { marked: true, dotColor: '#F44336' },
-              }}
-              onDayPress={(day) => {
-                console.log('Selected day', day);
-              }}
-            />
-            <TouchableOpacity style={styles.closeButton} onPress={() => setShowCalendar(false)}>
-            <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
-
-      {showAppointmentForm && (
-        <View style={styles.appointmentForm}>
-          <Text style={styles.formTitle}>Book Appointment</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Name"
-            value={appointmentDetails.name}
-            onChangeText={(text) => setAppointmentDetails({ ...appointmentDetails, name: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={appointmentDetails.email}
-            onChangeText={(text) => setAppointmentDetails({ ...appointmentDetails, email: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Phone"
-            value={appointmentDetails.phone}
-            onChangeText={(text) => setAppointmentDetails({ ...appointmentDetails, phone: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Date"
-            value={appointmentDetails.date}
-            onChangeText={(text) => setAppointmentDetails({ ...appointmentDetails, date: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Time"
-            value={appointmentDetails.time}
-            onChangeText={(text) => setAppointmentDetails({ ...appointmentDetails, time: text })}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Reason for appointment"
-            value={appointmentDetails.reason}
-            onChangeText={(text) => setAppointmentDetails({ ...appointmentDetails, reason: text })}
-          />
-          <TouchableOpacity style={styles.bookButton} onPress={handleBookAppointment}>
-            <Text style={styles.bookButtonText}>Book Now</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.cancelButton} onPress={() => setShowAppointmentForm(false)}>
-            <Text style={styles.cancelButtonText}>Cancel</Text>
-          </TouchableOpacity>
-        </View>
-      )}
 
       <Modal
         visible={showSuccessModal}
@@ -344,15 +379,21 @@ const Appointments = () => {
         transparent={true}
       >
         <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <LottieView
-              source={require('../../assets/animations/success.json')}
-              autoPlay
-              loop={false}
-              style={styles.successAnimation}
-            />
-            <Text style={styles.successText}>Appointment Booked Successfully!</Text>
-          </View>
+          <BlurView intensity={80} style={styles.modalBlur}>
+            <View style={styles.successModalContent}>
+              <LottieView
+                source={require('../../assets/animations/success.json')}
+                autoPlay
+                loop={false}
+                style={styles.successAnimation}
+              />
+              <Text style={styles.successText}>Appointment Scheduled Successfully!</Text>
+              <Text style={styles.successDetails}>
+                {`Doctor: ${selectedDoctor?.name}\nDate: ${selectedDate}\nTime: ${selectedTime}`}
+              </Text>
+              <Text style={styles.successNote}>Waiting for approval</Text>
+            </View>
+          </BlurView>
         </View>
       </Modal>
     </ScrollView>
@@ -362,21 +403,17 @@ const Appointments = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#334155',
+    backgroundColor: '#1e293b',
   },
-  headerContainer: {
-    height: 200,
+  contentContainer: {
+    paddingBottom: 100,
   },
-  backgroundImage: {
-    flex: 1,
-    resizeMode: 'cover',
-    justifyContent: 'space-between',
-    padding: 20,
-  },
-  headerTop: {
+  header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    padding: 20,
+    paddingTop: 50,
   },
   profileButton: {
     padding: 5,
@@ -393,7 +430,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     right: 0,
-    backgroundColor: 'red',
+    backgroundColor: '#FF6B6B',
     borderRadius: 10,
     width: 20,
     height: 20,
@@ -405,99 +442,217 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: 'bold',
   },
-  headerBottom: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  calendarButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    padding: 10,
-    borderRadius: 20,
-  },
-  calendarDate: {
-    color: '#FFFFFF',
-    marginLeft: 10,
-  },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
+    color: '#FFFFFF',
     marginLeft: 20,
-    marginTop: 20,
     marginBottom: 10,
   },
   todayAppointments: {
     marginTop: 20,
   },
-  appointmentList: {
+  todayAppointmentList: {
     paddingHorizontal: 10,
   },
-  appointmentCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    padding: 15,
+  todayAppointmentCard: {
+    width: 150,
+    height: 200,
     marginHorizontal: 10,
-    marginBottom: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderLeftWidth: 5,
-    elevation: 3,
+    borderRadius: 15,
+    overflow: 'hidden',
   },
-  appointmentDateColumn: {
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  appointmentDate: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  appointmentMonth: {
-    fontSize: 14,
-  },
-  doctorImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 15,
-  },
-  appointmentDetails: {
+  todayAppointmentGradient: {
     flex: 1,
   },
-  appointmentDoctorName: {
+  blurView: {
+    flex: 1,
+    padding: 15,
+    justifyContent: 'space-between',
+  },
+  todayDoctorImage: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    alignSelf: 'center',
+  },
+  todayDoctorName: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginTop: 10,
+  },
+  todayAppointmentTime: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  findDoctor: {
+    marginTop: 20,
+  },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 20,
+    marginHorizontal: 20,
+    paddingHorizontal: 15,
+    marginBottom: 15,
+  },
+  searchInput: {
+    flex: 1,
+    color: '#FFFFFF',
+    paddingVertical: 10,
+    marginLeft: 10,
+  },
+  doctorList: {
+    paddingHorizontal: 10,
+  },
+  doctorCard: {
+    width: 150,
+    marginHorizontal: 10,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 15,
+    overflow: 'hidden',
+  },
+  doctorCardImage: {
+    width: '100%',
+    height: 150,
+  },
+  doctorCardDetails: {
+    padding: 10,
+  },
+  doctorCardName: {
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
   },
-  appointmentTime: {
+  doctorCardSpecialization: {
+    color: '#CCCCCC',
     fontSize: 14,
-    color: '#777',
-    marginTop: 5,
   },
-  appointmentInfoBar: {
+  doctorCardRating: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 5,
   },
-  appointmentInfoText: {
-    fontSize: 12,
-    color: '#777',
+  doctorCardRatingText: {
+    color: '#FFFFFF',
     marginLeft: 5,
-    marginRight: 10,
   },
-  appointmentActions: {
+  categories: {
+    marginTop: 20,
+  },
+  categoryList: {
+    paddingHorizontal: 10,
+  },
+  categoryCard: {
+    width: 120,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 10,
+    borderRadius: 25,
+  },
+  categoryName: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  },
+  bookAppointment: {
+    marginTop: 20,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 20,
+    padding: 20,
+    marginHorizontal: 20,
+  },
+  timeSlots: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 15,
   },
-  actionButton: {
-    marginLeft: 10,
+  timeSlot: {
+    width: '23%',
+    paddingVertical: 10,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  selectedTimeSlot: {
+    backgroundColor: '#4CAF50',
+  },
+  timeSlotText: {
+    color: '#FFFFFF',
+  },
+  selectedTimeSlotText: {
+    fontWeight: 'bold',
+  },
+  doctorSelection: {
+    marginTop: 20,
+  },
+  formLabel: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  reasonInput: {
+    marginTop: 20,
+  },
+  input: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 10,
+    padding: 15,
+    color: '#FFFFFF',
+  },
+  severitySelection: {
+    marginTop: 20,
+  },
+  severityOptions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  severityOption: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 10,
+    marginHorizontal: 5,
+  },
+  selectedSeverityOption: {
+    backgroundColor: '#4CAF50',
+  },
+  severityOptionText: {
+    color: '#FFFFFF',
+  },
+  selectedSeverityOptionText: {
+    fontWeight: 'bold',
+  },
+  bookButton: {
+    backgroundColor: '#4CAF50',
+    borderRadius: 10,
+    padding: 15,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  bookButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  appointments: {
+    marginTop: 20,
   },
   tabContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 10,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: 'rgba(255,255,255,0.1)',
     borderRadius: 25,
     padding: 5,
     marginHorizontal: 20,
+    marginBottom: 15,
   },
   tab: {
     paddingVertical: 10,
@@ -505,15 +660,50 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   activeTab: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#4CAF50',
   },
   tabText: {
-    fontSize: 16,
-    color: '#777',
+    color: '#FFFFFF',
   },
   activeTabText: {
+    fontWeight: 'bold',
+  },
+  appointmentList: {
+    paddingHorizontal: 20,
+  },
+  appointmentCard: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 15,
+    padding: 15,
+    marginBottom: 15,
+    borderWidth: 2,
+  },
+  doctorImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 15,
+  },
+  appointmentDetails: {
+    flex: 1,
+  },
+  appointmentDoctorName: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  appointmentDate: {
+    color: '#CCCCCC',
+    marginTop: 5,
+  },
+  appointmentTime: {
+    color: '#CCCCCC',
+  },
+  appointmentStatus: {
     color: '#FFFFFF',
     fontWeight: 'bold',
+    marginTop: 5,
   },
   recentVisits: {
     marginTop: 20,
@@ -522,119 +712,66 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   recentVisitCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    padding: 15,
-    margin: 5,
+    width: 200,
+    height: 250,
+    marginHorizontal: 10,
+    borderRadius: 15,
+    overflow: 'hidden',
+  },
+  recentVisitGradient: {
     flex: 1,
-    alignItems: 'center',
-    elevation: 2,
+    justifyContent: 'space-between',
+    padding: 15,
   },
   recentVisitDoctorImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginBottom: 10,
-  },
-  recentVisitDate: {
-    fontSize: 14,
-    color: '#777',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignSelf: 'center',
   },
   recentVisitDoctorName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginVertical: 5,
-  },
-  recentVisitDiagnosis: {
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  findDoctor: {
-    marginTop: 20,
-  },
-  searchBar: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    marginHorizontal: 20,
-    marginBottom: 10,
-  },
-  doctorList: {
-    paddingHorizontal: 10,
-  },
-  doctorCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    padding: 15,
-    marginHorizontal: 10,
-    width: 200,
-    elevation: 3,
-  },
-  doctorName: {
-    fontSize: 16,
+    color: '#FFFFFF',
+    fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
     marginTop: 10,
   },
-  doctorSpecialization: {
-    fontSize: 14,
-    color: '#777',
-    textAlign: 'center',
-    marginBottom: 5,
-  },
-  doctorRating: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  doctorRatingText: {
-    marginLeft: 5,
-  },
-  doctorPatients: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 5,
-  },
-  doctorAvailability: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-  bookButton: {
-    backgroundColor: '#007AFF',
-    borderRadius: 20,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  bookButtonText: {
+  recentVisitDate: {
     color: '#FFFFFF',
-    fontWeight: 'bold',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  recentVisitDiagnosis: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 10,
   },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalBlur: {
+    width: '90%',
+    borderRadius: 20,
+    overflow: 'hidden',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
     padding: 20,
-    width: '80%',
-    maxHeight: '80%',
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
+    color: '#FFFFFF',
     marginBottom: 20,
     textAlign: 'center',
   },
   notificationItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 10,
   },
   closeButton: {
     backgroundColor: '#F44336',
