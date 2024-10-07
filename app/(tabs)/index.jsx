@@ -6,6 +6,8 @@ import Medlist from "../../components/Medlist"
 import Appointments from "../../components/Appointments"
 import HealthStats from "../../components/HealthStats"
 import Reminders from "../../components/Reminders"
+import { useNavigation } from '@react-navigation/native';
+
 
 
 export default function Dashboard() {
@@ -14,6 +16,12 @@ export default function Dashboard() {
   const [scheduleCount, setScheduleCount] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
+
+  const navigation = useNavigation();
+
+  const handleProfilePress = () => {
+    navigation.navigate('profile');
+  };
 
   useEffect(() => {
     const countUp = (setCount, targetValue) => {
@@ -85,12 +93,12 @@ export default function Dashboard() {
               <Ionicons name="calendar-outline" size={20} color="#FFF" />
               <Text style={styles.dateText}>Today is {new Date().toLocaleDateString()}</Text>
             </View>
-            <TouchableOpacity style={styles.profileContainer}>
-              <Image
-                source={require('../../assets/images/36.jpg')} // Change the path to your actual profile image
-                style={styles.profileImage}
-              />
-            </TouchableOpacity>
+            <TouchableOpacity style={styles.profileContainer} onPress={handleProfilePress}>
+      <Image
+        source={require('../../assets/images/12.jpeg')}
+        style={styles.profileImage}
+      />
+    </TouchableOpacity>
           </View>
 
           {/* Action Cards */}

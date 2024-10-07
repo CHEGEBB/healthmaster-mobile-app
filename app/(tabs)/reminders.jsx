@@ -89,9 +89,10 @@ const Reminders = ({ navigation }) => {
             source={require('../../assets/images/bg.jpeg')}
             style={styles.headerBackground}
           />
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-            <MaterialCommunityIcons name="chevron-left" size={30} color="#FFFFFF" />
-          </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation?.goBack()} style={styles.backButton}>
+  <MaterialCommunityIcons name="chevron-left" size={30} color="#FFFFFF" />
+</TouchableOpacity>
+
           <Text style={styles.headerHeading}>Set Reminder</Text>
           <View style={styles.reminderCountContainer}>
             <Ionicons name="alarm-outline" size={24} color="#FFFFFF" />
@@ -401,24 +402,28 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
     borderRadius: 20,
     padding: 5,
+    fontFamily: "Raleway-Regular",
   },
   reminderCount: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
     marginLeft: 5,
+    fontFamily: "Raleway-Regular",
   },
   form: {
     padding: 20,
   },
   inputGroup: {
     marginBottom: 24,
+    fontFamily: "Raleway-Regular",
   },
   label: {
     fontSize: 18,
     fontWeight: '600',
     color: '#FFFFFF',
     marginBottom: 10,
+    fontFamily: "Raleway-Regular",
   },
   textInputContainer: {
     flexDirection: 'row',
@@ -427,16 +432,18 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 15,
     minHeight: 56,
+    fontFamily: "Outfit-Regular",
   },
   textInput: {
     flex: 1,
     marginLeft: 10,
     color: '#FFFFFF',
     fontSize: 16,
+    fontFamily: "Outfit-Regular",
   },
   notesInput: {
     height: 100,
-    textAlignVertical: 'top',
+    textAlignVertical: 'center',
   },
   typeContainer: {
     flexDirection: 'row',
@@ -449,6 +456,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 15,
     width: '48%',
+    fontFamily: "Outfit-Regular",
+
   },
   selectedTypeButton: {
     backgroundColor: '#3B82F6',
@@ -471,6 +480,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginLeft: 10,
     fontSize: 16,
+    fontFamily: "Kanit-Regular",
   },
   setReminderButton: {
     flexDirection: 'row',
@@ -486,20 +496,24 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginRight: 10,
+    fontFamily: "Kanit-Regular",
   },
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#374151',
     borderRadius: 20,
     padding: 20,
     alignItems: 'center',
     elevation: 5,
     width: '80%',
+    fontFamily: "Kanit-Regular",
+    color: '#fff',
+
   },
   successAnimation: {
     width: 200,
@@ -510,21 +524,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#4CAF50',
     marginTop: 20,
+    fontFamily: "Kanit-Regular",
   },
   closeButton: {
     marginTop: 20,
     backgroundColor: '#3B82F6',
     borderRadius: 10,
     padding: 10,
+    fontFamily: "Kanit-Regular",
   },
   closeButtonText: {
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
+    fontFamily: "Kanit-Regular",
   },
   medicationImageButton: {
     backgroundColor: '#1F2937',
-    borderRadius: 12,
+    borderRadius: 20,
     padding: 15,
     alignItems: 'center',
     justifyContent: 'center',
@@ -535,24 +552,34 @@ const styles = StyleSheet.create({
   medicationImage: {
     width: 100,
     height: 100,
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     borderRadius: 50,
+    borderWidth:2,
+borderColor:"#059669",
   },
   medicationName: {
     color: '#FFFFFF',
     fontSize: 16,
     marginTop: 10,
     fontWeight: 'bold',
+    fontFamily: "Jost-Regular",
+
   },
   medicationImagePlaceholder: {
     color: '#6B7280',
     fontSize: 16,
+    fontFamily: "Jost-Regular",
+
   },
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#111827',
     marginBottom: 20,
+    fontFamily: "Jost-Regular",
+    color: '#FFFFFF',
+
+
   },
   medicationItem: {
     width: '50%',
@@ -562,14 +589,17 @@ const styles = StyleSheet.create({
   medicationItemImage: {
     width: 80,
     height: 80,
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     borderRadius: 40,
+    borderWidth:2,
+borderColor:"#059669",
   },
   medicationItemName: {
-    color: '#111827',
     fontSize: 14,
     marginTop: 5,
     textAlign: 'center',
+    color: '#FFFFFF',
+
   },
   soundItem: {
     padding: 15,
