@@ -57,6 +57,7 @@ export default function TabsLayout() {
           name="myMeds"
           options={{
             title: 'My Meds',
+            headerShown: false,
             tabBarIcon: ({ color }) => (
               <Ionicons name="medical-outline" size={24} color={color} />
             ),
@@ -66,6 +67,7 @@ export default function TabsLayout() {
           name="reminders"
           options={{
             title: 'Reminders',
+            headerShown: false,
             tabBarIcon: ({ color }) => (
               <MaterialCommunityIcons name="clock-outline" size={24} color={color} />
             ),
@@ -75,6 +77,7 @@ export default function TabsLayout() {
           name="profile"
           options={{
             title: 'Profile',
+            headerShown: false,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="person" size={size} color={color} />
             ),

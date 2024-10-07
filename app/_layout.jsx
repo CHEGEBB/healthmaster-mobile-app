@@ -59,6 +59,7 @@ const fontFiles = {
   'Raleway-Light': require('../assets/fonts/Raleway-Light.ttf'),
   'Raleway-Medium': require('../assets/fonts/Raleway-Medium.ttf'),
   'Raleway-Regular': require('../assets/fonts/Raleway-Regular.ttf'),
+  'Rubik-Medium': require('../assets/fonts/Rubik-Medium.ttf'),
 };
 
 export default function Layout() {
