@@ -48,6 +48,7 @@ export default function TabsLayout() {
           name="appointments"
           options={{
             title: 'Appointments',
+            headerShown: false,
             tabBarIcon: ({ color }) => (
               <MaterialCommunityIcons name="calendar-blank-outline" size={24} color={color} />
             ),
