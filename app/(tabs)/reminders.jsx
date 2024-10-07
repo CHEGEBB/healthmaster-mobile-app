@@ -94,7 +94,7 @@ const Reminders = ({ navigation }) => {
           </TouchableOpacity>
           <Text style={styles.headerHeading}>Set Reminder</Text>
           <View style={styles.reminderCountContainer}>
-            <MaterialCommunityIcons name="alarm" size={24} color="#FFFFFF" />
+            <Ionicons name="alarm-outline" size={24} color="#FFFFFF" />
             <Text style={styles.reminderCount}>{reminders.length}</Text>
           </View>
         </LinearGradient>
@@ -103,7 +103,7 @@ const Reminders = ({ navigation }) => {
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Reminder Title</Text>
             <View style={styles.textInputContainer}>
-              <Ionicons name="ios-notifications-outline" size={24} color="#6B7280" />
+              <Ionicons name="notifications-outline" size={24} color="#6B7280" />
               <TextInput
                 style={styles.textInput}
                 placeholder="Enter reminder title"
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
   },
   header: {
     width: '100%',
-    height: 200,
+    height: 300,
     justifyContent: 'flex-end',
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
