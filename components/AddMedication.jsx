@@ -1,23 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Dimensions,
-  ImageBackground,
-  Modal,
   ScrollView,
   Platform,
+  Image,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Slider from '@react-native-community/slider';
-import { Camera } from 'expo-camera';
-import LottieView from 'lottie-react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-
-const { width } = Dimensions.get('window');
+import * as ImagePicker from 'expo-image-picker';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 
 const AddMedication = ({ navigation }) => {
   const [medicationName, setMedicationName] = useState('');
@@ -28,18 +23,13 @@ const AddMedication = ({ navigation }) => {
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [selectedTime, setSelectedTime] = useState(null);
   const [selectedStyle, setSelectedStyle] = useState(0);
-  const [hasPermission, setHasPermission] = useState(null);
-  const [showCamera, setShowCamera] = useState(false);
   const [medicineImage, setMedicineImage] = useState(null);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   const medicationStyles = [
     { icon: 'pill', label: 'Capsule' },
     { icon: 'needle', label: 'Injection' },
     { icon: 'tablet', label: 'Solid' },
     { icon: 'cup-water', label: 'Liquid' },
-    { icon: 'inhaler', label: 'Inhaler' },
   ];
 
   const timeSlots = [
@@ -49,31 +39,36 @@ const AddMedication = ({ navigation }) => {
     { id: 4, time: '08:00 PM' },
   ];
 
-  useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestCameraPermissionsAsync();
-      setHasPermission(status === 'granted');
-    })();
-  }, []);
-
   const handleAddMedication = () => {
-    setShowSuccess(true);
-    setTimeout(() => {
-      setShowSuccess(false);
-      setShowDetailsModal(true);
-    }, 5000);
+    // Implement your logic to add medication
+    console.log('Medication added:', {
+      name: medicationName,
+      dosage,
+      startDate,
+      endDate,
+      time: timeSlots.find(slot => slot.id === selectedTime)?.time,
+      style: medicationStyles[selectedStyle].label,
+      image: medicineImage,
+    });
+    navigation.goBack();
   };
 
-  const takePicture = async () => {
-    if (hasPermission) {
-      const photo = await this.camera.takePictureAsync();
-      setMedicineImage(photo.uri);
-      setShowCamera(false);
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setMedicineImage(result.assets[0].uri);
     }
   };
 
   return (
     <ScrollView style={styles.container}>
+       <View style={styles.ImageWrapper}>
       <ImageBackground
         source={require('../assets/images/register.png')}
         style={styles.header}
@@ -83,12 +78,13 @@ const AddMedication = ({ navigation }) => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Add Medication</Text>
       </ImageBackground>
+      </View>
 
       <View style={styles.form}>
         <View style={styles.inputGroup}>
           <Text style={styles.label}>Medication Name</Text>
           <View style={styles.textInputContainer}>
-            <MaterialCommunityIcons name="medicine" size={24} color="#6B7280" />
+            <Ionicons name="medical-outline" size={24} color="#6B7280" />
             <TextInput
               style={styles.textInput}
               placeholder="Enter medication name"
@@ -200,12 +196,16 @@ const AddMedication = ({ navigation }) => {
         </View>
 
         <TouchableOpacity 
-          style={styles.cameraButton}
-          onPress={() => setShowCamera(true)}
+          style={styles.uploadButton}
+          onPress={pickImage}
         >
-          <MaterialCommunityIcons name="camera" size={24} color="#FFFFFF" />
-          <Text style={styles.cameraButtonText}>Take Photo of Medicine</Text>
+          <MaterialCommunityIcons name="image-plus" size={24} color="#FFFFFF" />
+          <Text style={styles.uploadButtonText}>Upload Medicine Image</Text>
         </TouchableOpacity>
+
+        {medicineImage && (
+          <Image source={{ uri: medicineImage }} style={styles.medicineImage} />
+        )}
 
         <TouchableOpacity 
           style={styles.addButton}
@@ -239,92 +239,66 @@ const AddMedication = ({ navigation }) => {
           }}
         />
       )}
-
-      <Modal visible={showCamera} animationType="slide">
-        <Camera
-          ref={ref => { this.camera = ref }}
-          style={styles.camera}
-        >
-          <View style={styles.cameraButtons}>
-            <TouchableOpacity 
-              style={styles.cameraCancelButton}
-              onPress={() => setShowCamera(false)}
-            >
-              <Text style={styles.cameraCancelText}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.cameraCaptureButton}
-              onPress={takePicture}
-            >
-              <MaterialCommunityIcons name="camera" size={36} color="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
-        </Camera>
-      </Modal>
-
-      <Modal visible={showSuccess} transparent animationType="fade">
-        <View style={styles.successModal}>
-          <LottieView
-            source={require('../assets/animations/success.json')}
-            autoPlay
-            loop={false}
-            style={styles.successAnimation}
-          />
-        </View>
-      </Modal>
-
-      <Modal visible={showDetailsModal} animationType="slide">
-        <View style={styles.detailsModal}>
-          <Text style={styles.detailsTitle}>Medication Details</Text>
-          <View style={styles.detailsContent}>
-            <DetailItem label="Name" value={medicationName} />
-            <DetailItem label="Dosage" value={`${dosage} time(s) per day`} />
-            <DetailItem label="Duration" value={`${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`} />
-            <DetailItem label="Time" value={timeSlots.find(slot => slot.id === selectedTime)?.time || 'Not set'} />
-            <DetailItem label="Style" value={medicationStyles[selectedStyle].label} />
-          </View>
-          <TouchableOpacity 
-            style={styles.closeButton}
-            onPress={() => setShowDetailsModal(false)}
-          >
-            <Text style={styles.closeButtonText}>Close</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
     </ScrollView>
   );
 };
-
-const DetailItem = ({ label, value }) => (
-  <View style={styles.detailItem}>
-    <Text style={styles.detailLabel}>{label}:</Text>
-    <Text style={styles.detailValue}>{value}</Text>
-  </View>
-);
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#111827',
   },
+  ImageWrapper:{
+    flex: 1,
+    width: '100%',
+    overflow: 'hidden',
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    shadowColor: '#14b8a6',
+    shadowOffset: { width: 0, height: 5 },
+    shadowRadius: 10,
+    shadowOpacity: 0.3,
+    elevation: 5,
+
+
+  },
   header: {
+    width: '100%',
     height: 300,
     justifyContent: 'flex-end',
-    padding: 20,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
+
   },
   backButton: {
     position: 'absolute',
     top: 40,
     left: 20,
     zIndex: 1,
+    borderWidth:2,
+borderColor:"#fff",
+borderRadius:5,
   },
   headerTitle: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#FFFFFF',
     marginBottom: 20,
+    marginLeft : 20,
+    alignSelf: 'flex-start',
+  },
+  backButton: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    zIndex: 1,
+    borderWidth: 2,
+    borderColor: "#fff",
+    borderRadius: 5,
+  },
+  headerTitle: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginTop: 20,
   },
   form: {
     padding: 20,
@@ -416,7 +390,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   styleButton: {
-    width: '30%',
+    width: '48%',
     backgroundColor: '#1F2937',
     borderRadius: 12,
     padding: 15,
@@ -433,7 +407,7 @@ const styles = StyleSheet.create({
   selectedStyleText: {
     color: '#FFFFFF',
   },
-  cameraButton: {
+  uploadButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -442,110 +416,32 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 20,
   },
-  cameraButtonText: {
+  uploadButtonText: {
     color: '#FFFFFF',
     marginLeft: 10,
     fontSize: 16,
   },
-addButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#3B82F6',
-      borderRadius: 12,
-      padding: 15,
-      marginBottom: 30,
-    },
-    addButtonText: {
-      color: '#FFFFFF',
-      fontSize: 18,
-      fontWeight: 'bold',
-      marginRight: 10,
-    },
-    camera: {
-      flex: 1,
-    },
-    cameraButtons: {
-      flex: 1,
-      backgroundColor: 'transparent',
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      padding: 20,
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
-    },
-    cameraCaptureButton: {
-      alignSelf: 'center',
-      width: 70,
-      height: 70,
-      borderRadius: 35,
-      backgroundColor: '#3B82F6',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    cameraCancelButton: {
-      alignSelf: 'center',
-      padding: 15,
-    },
-    cameraCancelText: {
-      color: '#FFFFFF',
-      fontSize: 18,
-    },
-    successModal: {
-      flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    successAnimation: {
-      width: 200,
-      height: 200,
-    },
-    detailsModal: {
-      flex: 1,
-      backgroundColor: '#111827',
-      padding: 20,
-    },
-    detailsTitle: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      color: '#FFFFFF',
-      marginBottom: 20,
-      textAlign: 'center',
-    },
-    detailsContent: {
-      flex: 1,
-    },
-    detailItem: {
-      flexDirection: 'row',
-      marginBottom: 15,
-      paddingBottom: 15,
-      borderBottomWidth: 1,
-      borderBottomColor: '#1F2937',
-    },
-    detailLabel: {
-      flex: 1,
-      fontSize: 16,
-      color: '#6B7280',
-    },
-    detailValue: {
-      flex: 2,
-      fontSize: 16,
-      color: '#FFFFFF',
-    },
-    closeButton: {
-      backgroundColor: '#3B82F6',
-      borderRadius: 12,
-      padding: 15,
-      alignItems: 'center',
-    },
-    closeButtonText: {
-      color: '#FFFFFF',
-      fontSize: 18,
-      fontWeight: 'bold',
-    },
-  });
+  medicineImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 12,
+    marginBottom: 20,
+  },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#3B82F6',
+    borderRadius: 12,
+    padding: 15,
+    marginBottom: 30,
+  },
+  addButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginRight: 10,
+  },
+});
 
 export default AddMedication;
