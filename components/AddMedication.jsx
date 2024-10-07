@@ -8,6 +8,7 @@ import {
   ScrollView,
   Platform,
   Image,
+  ImageBackground,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Slider from '@react-native-community/slider';
@@ -76,7 +77,7 @@ const AddMedication = ({ navigation }) => {
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <MaterialCommunityIcons name="chevron-left" size={30} color="#FFFFFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Add Medication</Text>
+        <Text style={styles.headerHeading}>Add Medication</Text>
       </ImageBackground>
       </View>
 
@@ -247,6 +248,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#111827',
+    // marginBottom: 80,
+
   },
   ImageWrapper:{
     flex: 1,
@@ -277,13 +280,15 @@ const styles = StyleSheet.create({
 borderColor:"#fff",
 borderRadius:5,
   },
-  headerTitle: {
+  headerHeading: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#FFFFFF',
     marginBottom: 20,
     marginLeft : 20,
     alignSelf: 'flex-start',
+    fontFamily: "Rubik-Bold",
+   
   },
   backButton: {
     position: 'absolute',

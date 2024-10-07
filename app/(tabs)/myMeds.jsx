@@ -14,7 +14,7 @@ const MyMeds = () => {
         initialRouteName="MedicationOverview"
         screenOptions={{
           headerShown: false,
-          header: () => null,  // Add this line
+          header: () => null,  
         }}
       >
         <Stack.Screen 
