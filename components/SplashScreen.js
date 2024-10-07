@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, ImageBackground, Animated, StyleSheet, Dimensions, Image } from 'react-native';
+import { View, Text, ImageBackground, Animated, StyleSheet, Dimensions, Image } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
@@ -44,7 +44,6 @@ const SplashScreen = () => {
   const scaleAnim = useRef(new Animated.Value(0.5)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
-  const shimmerAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.parallel([
@@ -86,24 +85,11 @@ const SplashScreen = () => {
         }),
       ])
     ).start();
-
-    Animated.loop(
-      Animated.timing(shimmerAnim, {
-        toValue: 1,
-        duration: 2000,
-        useNativeDriver: false,
-      })
-    ).start();
   }, []);
 
   const spin = rotateAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
-  });
-
-  const shimmerTranslate = shimmerAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [-width, width],
   });
 
   const animatedPhrases = [
@@ -116,7 +102,7 @@ const SplashScreen = () => {
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require('../assets/images/background-1.webp')}
+        source={require('../assets/images/new6.jpg')}
         style={styles.backgroundImage}
       >
         <View style={styles.overlay}>
@@ -132,42 +118,19 @@ const SplashScreen = () => {
           ]}>
             <View style={styles.logoContainer}>
               <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                <View style={styles.Lott}>
-                  {/* <LottieView
-                    source={require('../assets/animations/splash-animation.json')}
-                    autoPlay
-                    loop
-                    style={styles.lottie}
-                  /> */}
-                  <Image source={require('../assets/images/healthmaster.png')} style={styles.lottie}/>
+                <View style={styles.logoWrapper}>
+                  <Image source={require('../assets/images/healthmaster.png')} style={styles.logo}/>
                 </View>
               </Animated.View>
-              <Animated.Text style={[styles.title, { opacity: fadeAnim }]}>
-                Health Master
-              </Animated.Text>
             </View>
+            <Animated.Text style={[styles.title, { opacity: fadeAnim }]}>
+              Health Master
+            </Animated.Text>
             <Animated.Text style={[styles.tagline, { opacity: fadeAnim }]}>
               Where Care and Convenience Converge
             </Animated.Text>
             
             <AnimatedPhrase phrases={animatedPhrases} />
-          </Animated.View>
-
-          <Animated.View style={{ opacity: fadeAnim, transform: [{ scale: pulseAnim }] }}>
-            {/* <TouchableOpacity
-              onPress={() => alert('Get Started Clicked')}
-              style={styles.buttonContainer}
-            >
-              <View style={styles.button}>
-                <Animated.View style={[
-                  styles.shimmer,
-                  {
-                    transform: [{ translateX: shimmerTranslate }],
-                  }
-                ]} />
-                <Text style={styles.buttonText}>Get Started</Text>
-              </View>
-            </TouchableOpacity> */}
           </Animated.View>
         </View>
       </ImageBackground>
@@ -181,42 +144,38 @@ const styles = StyleSheet.create({
   },
   backgroundImage: {
     flex: 1,
+    width: '100%',
+    height: '100%',
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
   },
   content: {
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
   },
   logoContainer: {
-    flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 20,
   },
-  Lott:{
-    // backgroundColor:'hsl(240 3.7% 15.9%)',
-    // width:75,
-    // height:75,
-    padding:4,
-    marginTop:120,
-    borderRadius:50,
+  logoWrapper: {
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 75,
+    padding: 10,
   },
-  lottie: {
-    width: 85,
-    height: 85,
+  logo: {
+    width: 120,
+    height: 120,
   },
   title: {
     color: 'white',
-    fontSize: 36,
+    fontSize: 40,
     fontWeight: 'bold',
-    marginLeft: -10,
-    marginTop:120,
+    textAlign: 'center',
+    marginBottom: 10,
     fontFamily: 'Outfit-Bold',
   },
   tagline: {
@@ -224,7 +183,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     textAlign: 'center',
     marginBottom: 20,
-    fontFamily: 'Poppins-Bold',
+    fontFamily: 'Poppins-Regular',
   },
   animatedPhraseContainer: {
     height: 30,
@@ -238,32 +197,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     fontFamily: 'Poppins-Bold',
-  },
-  buttonContainer: {
-    overflow: 'hidden',
-    borderRadius: 30,
-    marginBottom: 80,
-  },
-  button: {
-    backgroundColor: '#4BE3AC',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  shimmer: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    opacity: 0.5,
-    backgroundColor: 'white',
   },
 });
 

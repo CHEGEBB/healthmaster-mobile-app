@@ -135,9 +135,9 @@ export default function Dashboard() {
 
         <View style={styles.scheduleRow}>
           {[
-            { time: "10:00 AM", doctor: "Dr. John Doe", image: require('../../assets/images/1.png') },
-            { time: "12:00 PM", doctor: "Dr. Jane Smith", image: require('../../assets/images/2.png') },
-            { time: "14:00 PM", doctor: "Dr. Mike Johnson", image: require('../../assets/images/3.png') }
+            { time: "10:00 AM", doctor: "Dr. John Wong", image: require('../../assets/images/as2.jpeg') },
+            { time: "12:00 PM", doctor: "Dr. Jane Smith", image: require('../../assets/images/am.jpeg') },
+            { time: "14:00 PM", doctor: "Dr. Mike Johnson", image: require('../../assets/images/ab3.jpeg') }
           ].map((schedule, index) => (
             <View style={styles.scheduleItem} key={index}>
               <Image source={schedule.image} style={styles.doctorImage} />

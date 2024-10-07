@@ -143,12 +143,12 @@ const MedicationReminders = () => {
   const displayedReminders = showAllReminders ? reminders : reminders.slice(0, 2);
 
   return (
-    <ImageBackground
-      source={require('../assets/images/app.png')}
-      style={styles.container}
-      resizeMode="cover"
-    >
-      <BlurView intensity={20} style={styles.contentContainer}>
+    // <ImageBackground
+    //   source={require('../assets/images/app.png')}
+    //   style={styles.container}
+    //   resizeMode="cover"
+    // >
+      <View intensity={20} style={styles.contentContainer}>
         <Animated.View style={styles.headerContainer}>
           <Text style={styles.title}>Today's Important Medications</Text>
           <View style={styles.buttonContainer}>
@@ -253,15 +253,15 @@ const MedicationReminders = () => {
             style={styles.confetti}
           />
         )}
-      </BlurView>
-    </ImageBackground>
+      </View>
+    // </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    width: SCREEN_WIDTH * 0.8,
+    width: SCREEN_WIDTH * 0.9,
     height: SCREEN_HEIGHT* 0.8,
   },
   contentContainer: {
@@ -309,11 +309,14 @@ const styles = StyleSheet.create({
   },
   blurContainer: {
     borderRadius: 20,
-    overflow: 'hidden',
+    // overflow: 'hidden',
     marginBottom: 15,
   },
   reminderItem: {
     marginBottom: 15,
+    borderRadius: 30,
+    width: '100%',
+
   },
   reminderContent: {
     flexDirection: 'row',
@@ -372,8 +375,10 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   modalImageContainer: {
-    alignItems: 'center',
     marginBottom: 20,
+    width: SCREEN_WIDTH * 0.9,
+    height: SCREEN_WIDTH * 0.9,
+    resizeMode: 'cover',
   },
   modalMedicationImage: {
     width: SCREEN_WIDTH * 0.5,

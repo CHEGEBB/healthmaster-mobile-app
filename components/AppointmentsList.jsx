@@ -21,6 +21,8 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
+import { useNavigation } from '@react-navigation/native';
+
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -74,6 +76,8 @@ const AppointmentsList = ({ navigation }) => {
     { id: 4, name: 'Neurology', color: '#FFA07A', icon: 'brain' },
     { id: 5, name: 'Orthopedics', color: '#98D8C8', icon: 'bone' },
   ];
+
+  
 
   const renderTodayAppointmentCard = useCallback(({ item }) => (
     <TouchableOpacity
@@ -535,7 +539,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(0,0,0,0.9)',
   },
   modalBlur: {
     width: '90%',
