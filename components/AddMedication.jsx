@@ -68,7 +68,7 @@ const AddMedication = ({ navigation }) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
        <View style={styles.ImageWrapper}>
       <ImageBackground
         source={require('../assets/images/register.png')}
@@ -248,8 +248,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#111827',
-    // marginBottom: 80,
 
+
+  },
+  contentContainer: {
+    paddingBottom: 80, 
   },
   ImageWrapper:{
     flex: 1,
