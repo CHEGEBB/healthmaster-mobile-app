@@ -1,12 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
-  ScrollView,
   TouchableOpacity,
   Image,
   Modal,
-  TextInput,
   FlatList,
   StyleSheet,
   Dimensions,
@@ -15,14 +13,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import Animated, {
-  FadeInRight,
-  FadeOutLeft,
   useSharedValue,
   useAnimatedStyle,
   withSpring,
 } from 'react-native-reanimated';
-import { useNavigation } from '@react-navigation/native';
-
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -38,46 +32,38 @@ const AppointmentsList = ({ navigation }) => {
 
   const notificationPosition = useSharedValue(-300);
 
-  const animatedNotificationStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: notificationPosition.value }],
-    };
-  });
+  const animatedNotificationStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: notificationPosition.value }],
+  }));
 
   const toggleNotifications = useCallback(() => {
-    if (showNotifications) {
-      notificationPosition.value = withSpring(-300);
-    } else {
-      notificationPosition.value = withSpring(0);
-    }
+    notificationPosition.value = withSpring(showNotifications ? -300 : 0);
     setShowNotifications(!showNotifications);
   }, [showNotifications, notificationPosition]);
 
-  const todayAppointments = [
+  const todayAppointments = useMemo(() => [
     { id: 1, doctorName: 'Dr. Sarah Wong', time: '10:00 AM', image: require('../assets/images/as.jpeg'), specialization: 'Cardiologist' },
     { id: 2, doctorName: 'Dr. Jane Smith', time: '2:00 PM', image: require('../assets/images/am.jpeg'), specialization: 'Dermatologist' },
     { id: 3, doctorName: 'Dr. Mike Johnson', time: '11:30 AM', image: require('../assets/images/ab2.jpeg'), specialization: 'Pediatrician' },
     { id: 4, doctorName: 'Dr. Sarah Brown', time: '3:30 PM', image: require('../assets/images/ab.jpeg'), specialization: 'Neurologist' },
-  ];
+  ], []);
 
-  const appointments = [
+  const appointments = useMemo(() => [
     { id: 1, doctorName: 'Dr. Olivia Don', date: '2024-06-07', time: '10:00 AM', status: 'upcoming', image: require('../assets/images/ab4.jpeg'), specialization: 'Cardiologist' },
     { id: 2, doctorName: 'Dr. Jane Snow', date: '2024-06-08', time: '2:00 PM', status: 'upcoming', image: require('../assets/images/2.png'), specialization: 'Dermatologist' },
     { id: 3, doctorName: 'Dr. Mike Ming', date: '2024-06-09', time: '11:30 AM', status: 'upcoming', image: require('../assets/images/as2.jpeg'), specialization: 'Pediatrician' },
     { id: 4, doctorName: 'Dr. Emily Kapoor', date: '2024-06-10', time: '3:30 PM', status: 'upcoming', image: require('../assets/images/i.jpeg'), specialization: 'Neurologist' },
     { id: 5, doctorName: 'Dr. John Doe', date: '2024-06-05', time: '9:00 AM', status: 'completed', image: require('../assets/images/1.png'), specialization: 'Cardiologist' },
     { id: 6, doctorName: 'Dr. Jane Smith', date: '2024-06-06', time: '1:00 PM', status: 'cancelled', image: require('../assets/images/2.png'), specialization: 'Dermatologist' },
-  ];
+  ], []);
 
-  const categories = [
+  const categories = useMemo(() => [
     { id: 1, name: 'Cardiology', color: '#FF6B6B', icon: 'heart' },
     { id: 2, name: 'Dermatology', color: '#4ECDC4', icon: 'hand-paper' },
     { id: 3, name: 'Pediatrics', color: '#45B7D1', icon: 'baby' },
     { id: 4, name: 'Neurology', color: '#FFA07A', icon: 'brain' },
     { id: 5, name: 'Orthopedics', color: '#98D8C8', icon: 'bone' },
-  ];
-
-  
+  ], []);
 
   const renderTodayAppointmentCard = useCallback(({ item }) => (
     <TouchableOpacity
@@ -136,27 +122,19 @@ const AppointmentsList = ({ navigation }) => {
 
   const getStatusColor = useCallback((status) => {
     switch (status) {
-      case 'completed':
-        return { borderColor: '#4CAF50' };
-      case 'cancelled':
-        return { borderColor: '#F44336' };
-      case 'upcoming':
-        return { borderColor: '#2196F3' };
-      default:
-        return {};
+      case 'completed': return { borderColor: '#4CAF50' };
+      case 'cancelled': return { borderColor: '#F44336' };
+      case 'upcoming': return { borderColor: '#2196F3' };
+      default: return {};
     }
   }, []);
 
   const getStatusTextColor = useCallback((status) => {
     switch (status) {
-      case 'completed':
-        return { color: '#4CAF50' };
-      case 'cancelled':
-        return { color: '#F44336' };
-      case 'upcoming':
-        return { color: '#2196F3' };
-      default:
-        return {};
+      case 'completed': return { color: '#4CAF50' };
+      case 'cancelled': return { color: '#F44336' };
+      case 'upcoming': return { color: '#2196F3' };
+      default: return {};
     }
   }, []);
 
@@ -171,8 +149,13 @@ const AppointmentsList = ({ navigation }) => {
     navigation.navigate('BookAppointment', { isRescheduling: true, appointment: selectedAppointment });
   }, [navigation, selectedAppointment]);
 
+  const filteredAppointments = useMemo(() =>
+    appointments.filter(a => a.status === activeTab),
+    [appointments, activeTab]
+  );
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity style={styles.profileButton}>
           <Ionicons name="person-circle-outline" size={32} color="#FFFFFF" />
@@ -206,65 +189,67 @@ const AppointmentsList = ({ navigation }) => {
         </BlurView>
       </Animated.View>
 
-      <View style={styles.todayAppointments}>
-        <Text style={styles.sectionTitle}>Today's Appointments</Text>
-        <FlatList
-          data={todayAppointments}
-          renderItem={renderTodayAppointmentCard}
-          keyExtractor={item => item.id.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.todayAppointmentList}
-        />
-      </View>
+      <FlatList
+        ListHeaderComponent={
+          <>
+            <View style={styles.todayAppointments}>
+              <Text style={styles.sectionTitle}>Today's Appointments</Text>
+              <FlatList
+                data={todayAppointments}
+                renderItem={renderTodayAppointmentCard}
+                keyExtractor={item => item.id.toString()}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.todayAppointmentList}
+              />
+            </View>
 
-      <View style={styles.categories}>
-        <Text style={styles.sectionTitle}>Categories</Text>
-        <FlatList
-          data={categories}
-          renderItem={renderCategoryCard}
-          keyExtractor={item => item.id.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoryList}
-        />
-      </View>
+            <View style={styles.categories}>
+              <Text style={styles.sectionTitle}>Categories</Text>
+              <FlatList
+                data={categories}
+                renderItem={renderCategoryCard}
+                keyExtractor={item => item.id.toString()}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.categoryList}
+              />
+            </View>
 
-      <TouchableOpacity 
-        style={styles.bookAppointmentButton} 
-        onPress={() => navigation.navigate('BookAppointment')}
-      >
-        <Text style={styles.bookAppointmentButtonText}>Book Appointment</Text>
-      </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.bookAppointmentButton}
+              onPress={() => navigation.navigate('BookAppointment')}
+            >
+              <Text style={styles.bookAppointmentButtonText}>Book Appointment</Text>
+            </TouchableOpacity>
 
-      <View style={styles.appointments}>
-        <View style={styles.tabContainer}>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'upcoming' && styles.activeTab]}
-            onPress={() => setActiveTab('upcoming')}
-          >
-            <Text style={[styles.tabText, activeTab === 'upcoming' && styles.activeTabText]}>Upcoming</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'completed' && styles.activeTab]}
-            onPress={() => setActiveTab('completed')}
-          >
-            <Text style={[styles.tabText, activeTab === 'completed' && styles.activeTabText]}>Completed</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'cancelled' && styles.activeTab]}
-            onPress={() => setActiveTab('cancelled')}
-          >
-            <Text style={[styles.tabText, activeTab === 'cancelled' && styles.activeTabText]}>Cancelled</Text>
-          </TouchableOpacity>
-        </View>
-        <FlatList
-          data={appointments.filter(a => a.status === activeTab)}
-          renderItem={renderAppointmentCard}
-          keyExtractor={item => item.id.toString()}
-          contentContainerStyle={styles.appointmentList}
-        />
-      </View>
+            <View style={styles.tabContainer}>
+              <TouchableOpacity
+                style={[styles.tab, activeTab === 'upcoming' && styles.activeTab]}
+                onPress={() => setActiveTab('upcoming')}
+              >
+                <Text style={[styles.tabText, activeTab === 'upcoming' && styles.activeTabText]}>Upcoming</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.tab, activeTab === 'completed' && styles.activeTab]}
+                onPress={() => setActiveTab('completed')}
+              >
+                <Text style={[styles.tabText, activeTab === 'completed' && styles.activeTabText]}>Completed</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.tab, activeTab === 'cancelled' && styles.activeTab]}
+                onPress={() => setActiveTab('cancelled')}
+              >
+                <Text style={[styles.tabText, activeTab === 'cancelled' && styles.activeTabText]}>Cancelled</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        }
+        data={filteredAppointments}
+        renderItem={renderAppointmentCard}
+        keyExtractor={item => item.id.toString()}
+        contentContainerStyle={styles.appointmentList}
+      />
 
       <Modal
         visible={showAppointmentDetails}
@@ -284,7 +269,7 @@ const AppointmentsList = ({ navigation }) => {
                   <Text style={styles.modalAppointmentTime}>{selectedAppointment.time}</Text>
                   <Text style={styles.modalAppointmentStatus}>{selectedAppointment.status}</Text>
                   <View style={styles.modalButtonContainer}>
-                  <TouchableOpacity style={styles.modalButton} onPress={handleRescheduleAppointment}>
+                    <TouchableOpacity style={styles.modalButton} onPress={handleRescheduleAppointment}>
                       <Text style={styles.modalButtonText}>Reschedule</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.modalButton, styles.modalCancelButton]} onPress={handleDeleteAppointment}>
@@ -300,17 +285,13 @@ const AppointmentsList = ({ navigation }) => {
           </BlurView>
         </View>
       </Modal>
-    </ScrollView>
+    </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1e293b',
-  },
-  contentContainer: {
-    paddingBottom: 100,
   },
   header: {
     flexDirection: 'row',
@@ -467,9 +448,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  appointments: {
-    marginTop: 20,
   },
   tabContainer: {
     flexDirection: 'row',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, ImageBackground, TextInput, TouchableOpacity, Image, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
@@ -8,7 +8,30 @@ import HealthStats from "../../components/HealthStats"
 import Reminders from "../../components/Reminders"
 import { useNavigation } from '@react-navigation/native';
 
+const ScheduleItem = React.memo(({ schedule, openModal }) => {
+  if (!schedule) return null;
+  
+  return (
+    <View style={styles.scheduleItem}>
+      <Image source={schedule.image} style={styles.doctorImage} />
+      <View style={styles.scheduleDetails}>
+        <Text style={styles.scheduleItemTitle}>{schedule.time}</Text>
+        <Text style={styles.scheduleItemText}>{schedule.doctor}</Text>
+      </View>
+      <TouchableOpacity onPress={() => openModal(schedule)}>
+        <Ionicons name="ellipsis-vertical" size={24} color="#777" />
+      </TouchableOpacity>
+    </View>
+  );
+});
 
+const ActionCard = React.memo(({ icon, text, count, style }) => (
+  <View style={[styles.card, style]}>
+    <Ionicons name={icon} size={30} color="#FFF" />
+    <Text style={styles.cardText}>{text}</Text>
+    <Text style={styles.cardCount}>{count}</Text>
+  </View>
+));
 
 export default function Dashboard() {
   const [appointmentsCount, setAppointmentsCount] = useState(0);
@@ -19,9 +42,9 @@ export default function Dashboard() {
 
   const navigation = useNavigation();
 
-  const handleProfilePress = () => {
+  const handleProfilePress = useCallback(() => {
     navigation.navigate('profile');
-  };
+  }, [navigation]);
 
   useEffect(() => {
     const countUp = (setCount, targetValue) => {
@@ -33,7 +56,7 @@ export default function Dashboard() {
         } else {
           clearInterval(interval);
         }
-      }, 50); 
+      }, 50);
     };
 
     countUp(setAppointmentsCount, 10);
@@ -41,21 +64,30 @@ export default function Dashboard() {
     countUp(setScheduleCount, 3);
   }, []);
 
-  const openModal = (schedule) => {
+  const openModal = useCallback((schedule) => {
     setSelectedSchedule(schedule);
     setModalVisible(true);
-  };
+  }, []);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setModalVisible(false);
     setSelectedSchedule(null);
-  };
+  }, []);
+
+  const schedules = useMemo(() => [
+    { time: "10:00 AM", doctor: "Dr. John Wong", image: require('../../assets/images/as2.jpeg') },
+    { time: "12:00 PM", doctor: "Dr. Jane Smith", image: require('../../assets/images/am.jpeg') },
+    { time: "14:00 PM", doctor: "Dr. Mike Johnson", image: require('../../assets/images/ab3.jpeg') }
+  ], []);
+
+  const renderScheduleItem = useCallback((schedule) => (
+    <ScheduleItem key={schedule.time} schedule={schedule} openModal={openModal} />
+  ), [openModal]);
 
   return (
     <ScrollView contentContainerStyle={styles.contentContainer} style={styles.container}>
-              <Stack.Screen options={{ headerShown: false }} />
+      <Stack.Screen options={{ headerShown: false }} />
 
-      {/* Header Section */}
       <View style={styles.headerContainer}>
         <ImageBackground 
           source={require('../../assets/images/register.png')} 
@@ -64,7 +96,6 @@ export default function Dashboard() {
         >
           <View style={styles.overlay} />
 
-          {/* Greeting and Notification */}
           <View style={styles.row}>
             <Text style={styles.headerText}>Hi, Emily👋!</Text>
             <TouchableOpacity style={styles.iconButton}>
@@ -74,7 +105,6 @@ export default function Dashboard() {
 
           <Text style={styles.healthText}>How is Your Health Today?</Text>
 
-          {/* Search Bar */}
           <View style={styles.searchBar}>
             <Ionicons name="search-outline" size={20} color="#555" style={styles.iconLeft} />
             <TextInput
@@ -87,44 +117,31 @@ export default function Dashboard() {
             </TouchableOpacity>
           </View>
 
-          {/* Date and Profile */}
           <View style={styles.dateRow}>
             <View style={styles.dateSection}>
               <Ionicons name="calendar-outline" size={20} color="#FFF" />
               <Text style={styles.dateText}>Today is {new Date().toLocaleDateString()}</Text>
             </View>
             <TouchableOpacity style={styles.profileContainer} onPress={handleProfilePress}>
-      <Image
-        source={require('../../assets/images/12.jpeg')}
-        style={styles.profileImage}
-      />
-    </TouchableOpacity>
+              <Image
+                source={require('../../assets/images/12.jpeg')}
+                style={styles.profileImage}
+              />
+            </TouchableOpacity>
           </View>
 
-          {/* Action Cards */}
           <View style={styles.actionRow}>
-            <View style={[styles.card, styles.cardAppointments]}>
-              <Ionicons name="calendar-outline" size={30} color="#FFF" />
-              <Text style={styles.cardText}>Appointments</Text>
-              <Text style={styles.cardCount}>{appointmentsCount}</Text>
-            </View>
-            <View style={[styles.card, styles.cardAlarms]}>
-              <Ionicons name="alarm-outline" size={30} color="#FFF" />
-              <Text style={styles.cardText}>Alarms</Text>
-              <Text style={styles.cardCount}>{alarmsCount}</Text>
-            </View>
-            <View style={[styles.card, styles.cardSchedule]}>
-              <Ionicons name="list-outline" size={30} color="#FFF" />
-              <Text style={styles.cardText}>Schedule</Text>
-              <Text style={styles.cardCount}>{scheduleCount}</Text>
-            </View>
+            <ActionCard icon="calendar-outline" text="Appointments" count={appointmentsCount} style={styles.cardAppointments} />
+            <ActionCard icon="alarm-outline" text="Alarms" count={alarmsCount} style={styles.cardAlarms} />
+            <ActionCard icon="list-outline" text="Schedule" count={scheduleCount} style={styles.cardSchedule} />
           </View>
         </ImageBackground>
       </View>
+
       <View style={styles.appointmentsContainer} className="mt-9">
-<Appointments/>
-      </View >
-      {/* Upcoming Schedule */}
+        <Appointments/>
+      </View>
+
       <View style={styles.upcomingSchedule}>
         <View style={styles.upcomingScheduleHeader}>
           <Text style={styles.upcomingScheduleTitle}>Upcoming Schedule</Text>
@@ -133,29 +150,9 @@ export default function Dashboard() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.scheduleRow}>
-          {[
-            { time: "10:00 AM", doctor: "Dr. John Wong", image: require('../../assets/images/as2.jpeg') },
-            { time: "12:00 PM", doctor: "Dr. Jane Smith", image: require('../../assets/images/am.jpeg') },
-            { time: "14:00 PM", doctor: "Dr. Mike Johnson", image: require('../../assets/images/ab3.jpeg') }
-          ].map((schedule, index) => (
-            <View style={styles.scheduleItem} key={index}>
-              <Image source={schedule.image} style={styles.doctorImage} />
-              <View style={styles.scheduleDetails}>
-                <Text style={styles.scheduleItemTitle}>{schedule.time}</Text>
-                <Text style={styles.scheduleItemText}>{schedule.doctor}</Text>
-              </View>
-              <TouchableOpacity onPress={() => openModal(schedule)}>
-                <Ionicons name="ellipsis-vertical" size={24} color="#777" />
-              </TouchableOpacity>
-            </View>
-          ))}
-        </View>
+        {schedules.map(renderScheduleItem)}
       </View>
-    
 
-
-      {/* Modal for Schedule Details */}
       {selectedSchedule && (
         <Modal visible={modalVisible} transparent={true} animationType="slide">
           <View style={styles.modalContainer}>
@@ -184,17 +181,14 @@ export default function Dashboard() {
       )}
     
       <View style={styles.medContainer}>
-        {/* today's medication plan */}
-        {/* upcoming medication reminders */}
         <Medlist/>
       </View>
       <View style={styles.myReminders} className="mt-3" >
-       <Reminders />
+        <Reminders />
       </View>
     
       <View style={styles.healthstats}>
-       <HealthStats/>
-  
+        <HealthStats/>
       </View>
     </ScrollView>
   );

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  View, Text, ImageBackground, StyleSheet, Dimensions, 
-  TextInput, TouchableOpacity, Animated, Keyboard, 
+import {
+  View, Text, ImageBackground, StyleSheet, Dimensions,
+  TextInput, TouchableOpacity, Animated, Keyboard,
   KeyboardAvoidingView, Platform, ScrollView, Modal, Alert
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -14,20 +14,22 @@ const { width, height } = Dimensions.get('window');
 
 // Initialize Appwrite
 const client = new Client()
-    .setEndpoint('https://cloud.appwrite.io/v1')
-    .setProject('6704d37c003c8a2f6a36');
+  .setEndpoint('https://cloud.appwrite.io/v1')
+  .setProject('6704d37c003c8a2f6a36');
 
 const account = new Account(client);
 
-export default function Login() {
+export default function AuthScreen() {
   const router = useRouter();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
+  const [name, setName] = useState('');
   const [userId, setUserId] = useState(null);
   const [isVerificationStep, setIsVerificationStep] = useState(false);
   const [focusedInput, setFocusedInput] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(true);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(height)).current;
@@ -88,13 +90,34 @@ export default function Login() {
 
     setIsLoading(true);
     try {
-      const token = await account.createPhoneToken(ID.unique(), phoneNumber);
-      setUserId(token.userId);
+      // Check if the user already exists
+      const existingUser = await account.get();
+      setIsNewUser(false);
+      setUserId(existingUser.$id);
       setIsVerificationStep(true);
-      Alert.alert('Success', 'Verification code sent to your phone');
+      Alert.alert('Welcome back!', 'Please enter the verification code sent to your phone.');
     } catch (error) {
-      console.error('Send verification error:', error);
-      Alert.alert('Error', 'Failed to send verification code. Please try again.');
+      if (error.code === 401) {
+        // User doesn't exist, proceed with new user registration
+        setIsNewUser(true);
+        if (!name) {
+          Alert.alert('Error', 'Please enter your name');
+          setIsLoading(false);
+          return;
+        }
+        try {
+          const token = await account.createPhoneToken(ID.unique(), phoneNumber);
+          setUserId(token.userId);
+          setIsVerificationStep(true);
+          Alert.alert('Success', 'Verification code sent to your phone');
+        } catch (createTokenError) {
+          console.error('Send verification error:', createTokenError);
+          Alert.alert('Error', 'Failed to send verification code. Please try again.');
+        }
+      } else {
+        console.error('Error checking user existence:', error);
+        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -108,8 +131,18 @@ export default function Login() {
 
     setIsLoading(true);
     try {
-      const session = await account.createSession(userId, verificationCode);
-      console.log('Login successful', session);
+      if (isNewUser) {
+        // Create a new session for new users
+        const session = await account.createSession(userId, verificationCode);
+        console.log('Authentication successful', session);
+        // Update user name
+        await account.updateName(name);
+      } else {
+        // Verify the phone for existing users
+        await account.updatePhoneVerification(userId, verificationCode);
+        console.log('Phone verification successful');
+      }
+
       setModalVisible(true);
       setTimeout(() => {
         setModalVisible(false);
@@ -153,21 +186,21 @@ export default function Login() {
       style={styles.container}
     >
       <Stack.Screen options={{ headerShown: false }} />
-      <ImageBackground 
-        source={require("../assets/images/register.png")} 
+      <ImageBackground
+        source={require("../assets/images/register.png")}
         style={styles.backgroundPattern}
       >
         <View style={styles.overlay}>
           <ScrollView contentContainerStyle={styles.scrollViewContent}>
             <View style={styles.imageWrapper}>
-              <ImageBackground 
-                source={require("../assets/images/back.webp")} 
+              <ImageBackground
+                source={require("../assets/images/back.webp")}
                 style={styles.Imagecontainer}
               >
                 <Animated.View style={[styles.overlay, { opacity: fadeAnim }]} />
               </ImageBackground>
             </View>
-            
+
             <Animated.View style={[styles.ContentContainer, { transform: [{ translateY: floatAnim }] }]}>
               <View style={styles.logoContainer}>
                 <LottieView
@@ -178,19 +211,20 @@ export default function Login() {
                 />
                 <Text style={styles.logoText}>Health Master</Text>
               </View>
-              <View style={styles.login}>
-                <Text style={styles.loginText}>Log in</Text>
+              <View style={styles.authTypeContainer}>
+                <Text style={styles.authTypeText}>{isNewUser ? 'Welcome!' : 'Welcome Back!'}</Text>
               </View>
               {!isVerificationStep ? (
                 <>
+                  {renderInput('person-outline', 'Name', name, setName)}
                   {renderInput('phone-portrait-outline', 'Phone Number', phoneNumber, setPhoneNumber, 'phone-pad')}
                   <TouchableOpacity 
-                    style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+                    style={[styles.authButton, isLoading && styles.authButtonDisabled]}
                     onPress={handleSendVerification}
                     disabled={isLoading}
                   >
-                    <Text style={styles.loginButtonText}>
-                      {isLoading ? 'Sending...' : 'Send Verification Code'}
+                    <Text style={styles.authButtonText}>
+                      {isLoading ? 'Processing...' : 'Continue'}
                     </Text>
                   </TouchableOpacity>
                 </>
@@ -198,23 +232,16 @@ export default function Login() {
                 <>
                   {renderInput('key-outline', 'Verification Code', verificationCode, setVerificationCode, 'numeric')}
                   <TouchableOpacity 
-                    style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
+                    style={[styles.authButton, isLoading && styles.authButtonDisabled]}
                     onPress={handleVerifyCode}
                     disabled={isLoading}
                   >
-                    <Text style={styles.loginButtonText}>
-                      {isLoading ? 'Verifying...' : 'Verify and Login'}
+                    <Text style={styles.authButtonText}>
+                      {isLoading ? 'Verifying...' : 'Verify and Proceed'}
                     </Text>
                   </TouchableOpacity>
                 </>
               )}
-              
-              <View style={styles.signupContainer}>
-                <Text style={styles.signupText}>Don't have an account? </Text>
-                <TouchableOpacity onPress={() => router.push('/signup')}>
-                  <Text style={styles.signupLink}>Sign Up</Text>
-                </TouchableOpacity>
-              </View>
             </Animated.View>
           </ScrollView>
         </View>
@@ -228,7 +255,7 @@ export default function Login() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalText}>Login Successful!</Text>
+            <Text style={styles.modalText}>{isNewUser ? 'Welcome!' : 'Welcome Back!'}</Text>
             <LottieView
               source={require('../assets/animations/confetti.json')}
               autoPlay
@@ -323,7 +350,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     fontFamily: 'Poppins-Regular',
   },
-  loginButton: {
+  authButton: {
     backgroundColor: '#4BE3AC',
     borderRadius: 10,
     paddingVertical: 15,
@@ -331,21 +358,21 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 20,
   },
-  loginButtonDisabled: {
+  authButtonDisabled: {
     backgroundColor: '#2A7159',
     opacity: 0.7,
   },
-  loginButtonText: {
+  authButtonText: {
     color: '#161622',
     fontSize: 18,
     fontWeight: 'bold',
     fontFamily: 'Poppins-Regular',
   },
-  login: {
+  authTypeContainer: {
     marginBottom: 10,
     alignSelf: 'flex-start',
   },
-  loginText: {
+  authTypeText: {
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'left',
@@ -356,19 +383,10 @@ const styles = StyleSheet.create({
     color: '#4BE3AC',
     fontFamily: 'Poppins-Regular',
   },
-  signupContainer: {
-    flexDirection: 'row',
-    marginTop: 20,
-  },
-  signupText: {
+  switchAuthText: {
     color: '#fff',
     fontSize: 14,
-    fontFamily: 'Poppins-Regular',
-  },
-  signupLink: {
-    color: '#4BE3AC',
-    fontSize: 14,
-    fontWeight: 'bold',
+    marginTop: 20,
     fontFamily: 'Poppins-Regular',
   },
   modalOverlay: {
