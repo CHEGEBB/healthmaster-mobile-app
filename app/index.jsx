@@ -19,7 +19,7 @@ const carouselData = [
   {
     title: "Health Stats",
     text: "See your health stats and track your progress",
-    image: require('../assets/images/body.jpeg'),
+    image: require('../assets/images/heart.jpeg'),
   },
 ];
 

@@ -8,35 +8,27 @@ import { useRouter } from 'expo-router';
 import { Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import LottieView from 'lottie-react-native';
-import { Client, Account, ID } from "appwrite";
 
 const { width, height } = Dimensions.get('window');
 
-// Initialize Appwrite
-const client = new Client()
-  .setEndpoint('https://cloud.appwrite.io/v1')
-  .setProject('6704d37c003c8a2f6a36');
-
-const account = new Account(client);
-
 export default function AuthScreen() {
   const router = useRouter();
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
-  const [name, setName] = useState('');
-  const [userId, setUserId] = useState(null);
-  const [isVerificationStep, setIsVerificationStep] = useState(false);
-  const [focusedInput, setFocusedInput] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isNewUser, setIsNewUser] = useState(true);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
+  // Animation refs
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(height)).current;
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-  const floatAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    startAnimations();
+  }, []);
+
+  const startAnimations = () => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -50,123 +42,75 @@ export default function AuthScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.1,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(floatAnim, {
-          toValue: -10,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(floatAnim, {
-          toValue: 0,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, []);
-
-  const handleSendVerification = async () => {
-    if (!phoneNumber) {
-      Alert.alert('Error', 'Please enter your phone number');
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // Check if the user already exists
-      const existingUser = await account.get();
-      setIsNewUser(false);
-      setUserId(existingUser.$id);
-      setIsVerificationStep(true);
-      Alert.alert('Welcome back!', 'Please enter the verification code sent to your phone.');
-    } catch (error) {
-      if (error.code === 401) {
-        // User doesn't exist, proceed with new user registration
-        setIsNewUser(true);
-        if (!name) {
-          Alert.alert('Error', 'Please enter your name');
-          setIsLoading(false);
-          return;
-        }
-        try {
-          const token = await account.createPhoneToken(ID.unique(), phoneNumber);
-          setUserId(token.userId);
-          setIsVerificationStep(true);
-          Alert.alert('Success', 'Verification code sent to your phone');
-        } catch (createTokenError) {
-          console.error('Send verification error:', createTokenError);
-          Alert.alert('Error', 'Failed to send verification code. Please try again.');
-        }
-      } else {
-        console.error('Error checking user existence:', error);
-        Alert.alert('Error', 'An unexpected error occurred. Please try again.');
-      }
-    } finally {
-      setIsLoading(false);
-    }
   };
 
-  const handleVerifyCode = async () => {
-    if (!verificationCode) {
-      Alert.alert('Error', 'Please enter the verification code');
+  const handleAuth = async () => {
+    if (!email || !password || (isNewUser && !name)) {
+      Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
     setIsLoading(true);
     try {
       if (isNewUser) {
-        // Create a new session for new users
-        const session = await account.createSession(userId, verificationCode);
-        console.log('Authentication successful', session);
-        // Update user name
-        await account.updateName(name);
+        // Create new user
+        const response = await fetch('http://192.168.205.123:5000/api/auth/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ name, email, password }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to create account');
+        }
+        
+        Alert.alert('Success', 'Account created successfully. You can now log in.');
+        setIsNewUser(false); 
       } else {
-        // Verify the phone for existing users
-        await account.updatePhoneVerification(userId, verificationCode);
-        console.log('Phone verification successful');
-      }
+        // Login existing user
+        const response = await fetch('http://192.168.205.123:5000/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
 
-      setModalVisible(true);
-      setTimeout(() => {
-        setModalVisible(false);
-        router.push('/started');
-      }, 3000);
+        if (!response.ok) {
+          throw new Error('Failed to log in');
+        }
+        
+        setModalVisible(true);
+        setTimeout(() => {
+          setModalVisible(false);
+          router.push('/started');
+        }, 3000);
+      }
     } catch (error) {
-      console.error('Verification error:', error);
-      Alert.alert('Error', 'Invalid verification code. Please try again.');
+      console.error('Auth error:', error);
+      Alert.alert('Error', error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const renderInput = (icon, placeholder, value, onChangeText, keyboardType = 'default') => (
+  const toggleUserType = () => {
+    setIsNewUser(!isNewUser);
+    setName('');
+    setEmail('');
+    setPassword('');
+  };
+
+  const renderInput = (icon, placeholder, value, onChangeText, keyboardType = 'default', secureTextEntry = false) => (
     <Animated.View
       style={[
         styles.inputContainer,
-        focusedInput === placeholder && styles.focusedInput,
         { transform: [{ translateY: slideAnim }] }
       ]}
     >
-      <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
-        <Ionicons name={icon} size={24} color="#4BE3AC" style={styles.icon} />
-      </Animated.View>
+      <Ionicons name={icon} size={24} color="#4BE3AC" style={styles.icon} />
       <TextInput
         style={styles.input}
         placeholder={placeholder}
@@ -174,8 +118,7 @@ export default function AuthScreen() {
         value={value}
         onChangeText={onChangeText}
         keyboardType={keyboardType}
-        onFocus={() => setFocusedInput(placeholder)}
-        onBlur={() => setFocusedInput(null)}
+        secureTextEntry={secureTextEntry}
       />
     </Animated.View>
   );
@@ -201,7 +144,7 @@ export default function AuthScreen() {
               </ImageBackground>
             </View>
 
-            <Animated.View style={[styles.ContentContainer, { transform: [{ translateY: floatAnim }] }]}>
+            <Animated.View style={styles.ContentContainer}>
               <View style={styles.logoContainer}>
                 <LottieView
                   source={require('../assets/animations/logo.json')}
@@ -211,37 +154,49 @@ export default function AuthScreen() {
                 />
                 <Text style={styles.logoText}>Health Master</Text>
               </View>
+              
               <View style={styles.authTypeContainer}>
-                <Text style={styles.authTypeText}>{isNewUser ? 'Welcome!' : 'Welcome Back!'}</Text>
+                <Text style={styles.authTypeText}>
+                  {isNewUser ? 'Create Account' : 'Welcome Back!'}
+                </Text>
               </View>
-              {!isVerificationStep ? (
+
+              {!isNewUser ? (
                 <>
-                  {renderInput('person-outline', 'Name', name, setName)}
-                  {renderInput('phone-portrait-outline', 'Phone Number', phoneNumber, setPhoneNumber, 'phone-pad')}
+                  {renderInput('mail-outline', 'Email', email, setEmail, 'email-address')}
+                  {renderInput('lock-closed-outline', 'Password', password, setPassword, 'default', true)}
                   <TouchableOpacity 
                     style={[styles.authButton, isLoading && styles.authButtonDisabled]}
-                    onPress={handleSendVerification}
+                    onPress={handleAuth}
                     disabled={isLoading}
                   >
                     <Text style={styles.authButtonText}>
-                      {isLoading ? 'Processing...' : 'Continue'}
+                      {isLoading ? 'Processing...' : 'Log In'}
                     </Text>
                   </TouchableOpacity>
                 </>
               ) : (
                 <>
-                  {renderInput('key-outline', 'Verification Code', verificationCode, setVerificationCode, 'numeric')}
+                  {renderInput('person-outline', 'Full Name', name, setName)}
+                  {renderInput('mail-outline', 'Email', email, setEmail, 'email-address')}
+                  {renderInput('lock-closed-outline', 'Password', password, setPassword, 'default', true)}
                   <TouchableOpacity 
                     style={[styles.authButton, isLoading && styles.authButtonDisabled]}
-                    onPress={handleVerifyCode}
+                    onPress={handleAuth}
                     disabled={isLoading}
                   >
                     <Text style={styles.authButtonText}>
-                      {isLoading ? 'Verifying...' : 'Verify and Proceed'}
+                      {isLoading ? 'Processing...' : 'Sign Up'}
                     </Text>
                   </TouchableOpacity>
                 </>
               )}
+              
+              <TouchableOpacity onPress={toggleUserType}>
+                <Text style={styles.switchAuthText} className="text-emerald-500">
+                  {isNewUser ? 'Already have an account? Log in' : 'Need an account? Sign up'}
+                </Text>
+              </TouchableOpacity>
             </Animated.View>
           </ScrollView>
         </View>
@@ -255,13 +210,15 @@ export default function AuthScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalText}>{isNewUser ? 'Welcome!' : 'Welcome Back!'}</Text>
             <LottieView
-              source={require('../assets/animations/confetti.json')}
+              source={require('../assets/animations/loading.json')}
               autoPlay
               loop={false}
-              style={styles.confettiAnimation}
+              style={styles.loadingAnimation}
             />
+            <Text style={styles.modalText}>
+              {isNewUser ? 'Welcome to Health Master!' : 'Welcome Back!'}
+            </Text>
           </View>
         </View>
       </Modal>
@@ -335,90 +292,67 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'transparent',
     width: '100%',
-    marginTop: 10,
-  },
-  focusedInput: {
-    borderColor: '#4BE3AC',
   },
   icon: {
     marginRight: 10,
   },
   input: {
     flex: 1,
+    height: 50,
     color: '#fff',
-    fontSize: 14,
-    paddingVertical: 15,
-    fontFamily: 'Poppins-Regular',
+    fontSize: 16,
+    paddingVertical: 10,
   },
   authButton: {
     backgroundColor: '#4BE3AC',
-    borderRadius: 10,
+    borderRadius: 25,
     paddingVertical: 15,
-    alignItems: 'center',
+    paddingHorizontal: 20,
     width: '100%',
-    marginTop: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
   },
   authButtonDisabled: {
-    backgroundColor: '#2A7159',
-    opacity: 0.7,
+    backgroundColor: 'gray',
   },
   authButtonText: {
-    color: '#161622',
-    fontSize: 18,
+    color: '#fff',
     fontWeight: 'bold',
-    fontFamily: 'Poppins-Regular',
-  },
-  authTypeContainer: {
-    marginBottom: 10,
-    alignSelf: 'flex-start',
-  },
-  authTypeText: {
-    fontWeight: 'bold',
-    marginBottom: 10,
-    textAlign: 'left',
-    marginTop: 20,
-    bottom: 10,
-    fontSize: 20,
-    left: 4,
-    color: '#4BE3AC',
-    fontFamily: 'Poppins-Regular',
+    fontSize: 16,
   },
   switchAuthText: {
     color: '#fff',
-    fontSize: 14,
-    marginTop: 20,
-    fontFamily: 'Poppins-Regular',
+    marginTop: 15,
+    textAlign: 'center',
   },
   modalOverlay: {
     flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: '#161622',
-    borderRadius: 20,
-    padding: 35,
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5
+  },
+  loadingAnimation: {
+    width: 100,
+    height: 100,
   },
   modalText: {
-    color: '#4BE3AC',
+    marginTop: 10,
     fontSize: 18,
-    textAlign: 'center',
-    marginBottom: 20,
     fontWeight: 'bold',
+  },
+  authTypeText :{
+    color: '#4BE3AC',
+    fontSize: 16,
+    marginTop: 10,
+    marginBottom: 20,
+    textAlign: 'center',
     fontFamily: 'Poppins-Regular',
-  },
-  confettiAnimation: {
-    width: 200,
-    height: 200,
-  },
+  }
 });

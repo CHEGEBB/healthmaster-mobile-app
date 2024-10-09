@@ -1,16 +1,17 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, ImageBackground, TextInput, TouchableOpacity, Image, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
-import Medlist from "../../components/Medlist"
-import Appointments from "../../components/Appointments"
-import HealthStats from "../../components/HealthStats"
-import Reminders from "../../components/Reminders"
+import Medlist from "../../components/Medlist";
+import Appointments from "../../components/Appointments";
+import HealthStats from "../../components/HealthStats";
+import Reminders from "../../components/Reminders";
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios'; // Make sure to install axios if you haven't already
 
-const ScheduleItem = React.memo(({ schedule, openModal }) => {
+const ScheduleItem = ({ schedule, openModal }) => {
   if (!schedule) return null;
-  
+
   return (
     <View style={styles.scheduleItem}>
       <Image source={schedule.image} style={styles.doctorImage} />
@@ -23,17 +24,18 @@ const ScheduleItem = React.memo(({ schedule, openModal }) => {
       </TouchableOpacity>
     </View>
   );
-});
+};
 
-const ActionCard = React.memo(({ icon, text, count, style }) => (
+const ActionCard = ({ icon, text, count, style }) => (
   <View style={[styles.card, style]}>
     <Ionicons name={icon} size={30} color="#FFF" />
     <Text style={styles.cardText}>{text}</Text>
     <Text style={styles.cardCount}>{count}</Text>
   </View>
-));
+);
 
 export default function Dashboard() {
+  const [userData, setUserData] = useState(null);
   const [appointmentsCount, setAppointmentsCount] = useState(0);
   const [alarmsCount, setAlarmsCount] = useState(0);
   const [scheduleCount, setScheduleCount] = useState(0);
@@ -46,22 +48,21 @@ export default function Dashboard() {
     navigation.navigate('profile');
   }, [navigation]);
 
-  useEffect(() => {
-    const countUp = (setCount, targetValue) => {
-      let count = 0;
-      const interval = setInterval(() => {
-        if (count < targetValue) {
-          count += 1;
-          setCount(count);
-        } else {
-          clearInterval(interval);
-        }
-      }, 50);
-    };
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/auth/login'); // Replace with your actual login endpoint
+      setUserData(response.data);
+      // Assume response.data contains the counts
+      setAppointmentsCount(response.data.appointmentsCount);
+      setAlarmsCount(response.data.alarmsCount);
+      setScheduleCount(response.data.scheduleCount);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
 
-    countUp(setAppointmentsCount, 10);
-    countUp(setAlarmsCount, 5);
-    countUp(setScheduleCount, 3);
+  useEffect(() => {
+    fetchUserData();
   }, []);
 
   const openModal = useCallback((schedule) => {
@@ -74,30 +75,26 @@ export default function Dashboard() {
     setSelectedSchedule(null);
   }, []);
 
-  const schedules = useMemo(() => [
+  const schedules = [
     { time: "10:00 AM", doctor: "Dr. John Wong", image: require('../../assets/images/as2.jpeg') },
     { time: "12:00 PM", doctor: "Dr. Jane Smith", image: require('../../assets/images/am.jpeg') },
     { time: "14:00 PM", doctor: "Dr. Mike Johnson", image: require('../../assets/images/ab3.jpeg') }
-  ], []);
-
-  const renderScheduleItem = useCallback((schedule) => (
-    <ScheduleItem key={schedule.time} schedule={schedule} openModal={openModal} />
-  ), [openModal]);
+  ];
 
   return (
     <ScrollView contentContainerStyle={styles.contentContainer} style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
 
       <View style={styles.headerContainer}>
-        <ImageBackground 
-          source={require('../../assets/images/register.png')} 
+        <ImageBackground
+          source={require('../../assets/images/register.png')}
           style={styles.imageContainer}
           imageStyle={styles.imageStyle}
         >
           <View style={styles.overlay} />
 
           <View style={styles.row}>
-            <Text style={styles.headerText}>Hi, Emily👋!</Text>
+            <Text style={styles.headerText}>Hi, {userData ? userData.name : "User"}👋!</Text>
             <TouchableOpacity style={styles.iconButton}>
               <Ionicons name="notifications-outline" size={24} color="#FFF" />
             </TouchableOpacity>
@@ -138,8 +135,8 @@ export default function Dashboard() {
         </ImageBackground>
       </View>
 
-      <View style={styles.appointmentsContainer} className="mt-9">
-        <Appointments/>
+      <View style={styles.appointmentsContainer}>
+        <Appointments />
       </View>
 
       <View style={styles.upcomingSchedule}>
@@ -150,7 +147,9 @@ export default function Dashboard() {
           </TouchableOpacity>
         </View>
 
-        {schedules.map(renderScheduleItem)}
+        {schedules.map(schedule => (
+          <ScheduleItem key={schedule.time} schedule={schedule} openModal={openModal} />
+        ))}
       </View>
 
       {selectedSchedule && (
@@ -179,16 +178,16 @@ export default function Dashboard() {
           </View>
         </Modal>
       )}
-    
+
       <View style={styles.medContainer}>
-        <Medlist/>
+        <Medlist />
       </View>
-      <View style={styles.myReminders} className="mt-3" >
+      <View style={styles.myReminders}>
         <Reminders />
       </View>
-    
+
       <View style={styles.healthstats}>
-        <HealthStats/>
+        <HealthStats />
       </View>
     </ScrollView>
   );
@@ -202,7 +201,6 @@ const styles = StyleSheet.create({
   contentContainer: {
     flexGrow: 1,
   },
- 
   headerContainer: {
     width: '100%',
     height: 400,
@@ -226,7 +224,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 100, 0.2)',  
+    backgroundColor: 'rgba(0, 0, 100, 0.2)',
   },
   row: {
     flexDirection: 'row',
@@ -239,171 +237,132 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#FFF',
-    fontFamily: 'Poppins-Bold',
-
- 
-},
-iconButton: {
-  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  padding: 10,
-  borderRadius: 50,
-},
-healthText: {
-  fontSize: 18,
-  color: '#fff',  
-  textAlign: 'left',
-  marginVertical: 15,
-  marginLeft: 20,
-},
-searchBar: {
-  flexDirection: 'row',
-  backgroundColor: '#FFF',
-  borderRadius: 30,
-  paddingHorizontal: 10,
-  marginHorizontal: 20,
-  alignItems: 'center',
-  marginBottom: 15,
-},
-input: {
-  flex: 1,
-  height: 40,
-  color: '#000',
-},
-iconLeft: {
-  marginRight: 10,
-},
-iconRight: {
-  marginLeft: 10,
-},
-dateRow: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  paddingHorizontal: 20,
-  marginVertical: 10,
-},
-dateSection: {
-  flexDirection: 'row',
-  alignItems: 'center',
-},
-dateText: {
-  marginLeft: 10,
-  fontSize: 16,
-  color: '#FFF',
-},
-glassyIconButton: {
-  backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  padding: 10,
-  borderRadius: 50,
-},
-actionRow: {
-  flexDirection: 'row',
-  justifyContent: 'space-around',
-  marginTop: 15,
-},
-card: {
-  width: 100,
-  height: 90,
-  borderRadius: 15,
-  justifyContent: 'center',
-  alignItems: 'center',
-  padding: 10,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 5 },
-  shadowOpacity: 0.3,
-  shadowRadius: 5,
-},
-cardAppointments: {
-  backgroundColor: '#4A90E2', 
-},
-cardAlarms: {
-  backgroundColor: '#FF6F61', 
-},
-cardSchedule: {
-  backgroundColor: '#50C878', 
-},
-cardText: {
-  color: '#FFF',
-  fontSize: 12,
-  fontWeight: 'bold',
-  marginTop: 10,
-},
-cardCount: {
-  fontSize: 24,
-  fontWeight: 'bold',
-  color: '#FFF',
-  marginTop: 5,
-  fontFamily: 'Poppins-Bold',
-},
-profileContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)', 
-    padding: 2,
+  },
+  iconButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    padding: 10,
     borderRadius: 50,
+  },
+  healthText: {
+    fontSize: 18,
+    color: '#FFF',
+    marginTop: 10,
+  },
+  searchBar: {
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    marginTop: 15,
+    height: 40,
+  },
+  iconLeft: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    color: '#555',
+  },
+  iconRight: {
+    marginLeft: 10,
+  },
+  dateRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    marginTop: 10,
+  },
+  dateSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dateText: {
+    fontSize: 16,
+    color: '#FFF',
+    marginLeft: 5,
+  },
+  profileContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     overflow: 'hidden',
   },
-  
   profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  actionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 15,
+    paddingHorizontal: 20,
+  },
+  card: {
+    backgroundColor: '#4A4E69',
+    borderRadius: 10,
+    padding: 15,
+    alignItems: 'center',
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  cardAppointments: {
+    backgroundColor: '#FF6F61',
+  },
+  cardAlarms: {
+    backgroundColor: '#6B5B95',
+  },
+  cardSchedule: {
+    backgroundColor: '#88B04B',
+  },
+  cardText: {
+    color: '#FFF',
+    fontSize: 18,
+    marginTop: 5,
+  },
+  cardCount: {
+    color: '#FFF',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  appointmentsContainer: {
+    marginTop: 20,
+    paddingHorizontal: 20,
   },
   upcomingSchedule: {
-    marginVertical: 20,
+    marginTop: 20,
     paddingHorizontal: 20,
-    paddingVertical: 20,
-    backgroundColor: '#161622',
-    borderRadius: 20,
-    elevation: 5,
-    overflow: 'hidden',
-    width: '100%',
-    marginLeft: 'auto',
-    marginRight: 'auto',
   },
   upcomingScheduleHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
-    
-    
   },
   upcomingScheduleTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
     color: '#FFF',
-
   },
   seeAllText: {
-    color: '#4A90E2',
+    color: '#FFF',
     fontSize: 14,
-  },
-  scheduleRow: {
-    flexDirection: 'column',
+    fontWeight: 'bold',
   },
   scheduleItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#2E383F',
     padding: 10,
+    backgroundColor: '#333',
     borderRadius: 10,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
   },
   doctorImage: {
     width: 50,
     height: 50,
     borderRadius: 25,
     marginRight: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    marginBottom: 10,
-    borderWidth: 2,
   },
   scheduleDetails: {
     flex: 1,
@@ -411,130 +370,81 @@ profileContainer: {
   scheduleItemTitle: {
     fontSize: 16,
     color: '#FFF',
+    fontWeight: 'bold',
   },
   scheduleItemText: {
     fontSize: 14,
-    color: '#BBB',
+    color: '#AAA',
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: '#161622',
-    borderRadius: 20,
-    padding: 20,
     width: '80%',
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+    padding: 20,
     alignItems: 'center',
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#FFF',
   },
-    modalTime: {
-        fontSize: 16,
-        color: '#777',
-        marginBottom: 20,
-    },
-    modalDoctorImage: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        marginBottom: 20,
-    },
-    modalActions: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        width: '100%',
-        marginBottom: 20,
-    },
-    modalButtonDone: {
-        backgroundColor: '#50C878',
-        padding: 10,
-        borderRadius: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    modalButtonText: {
-        fontSize: 16,
-        color: '#FFF',
-        marginLeft: 10,
-    },
-    modalButtonCancel: {
-        backgroundColor: '#FF6F61',
-        padding: 10,
-        borderRadius: 10,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    modalCloseButton: {
-        position: 'absolute',
-        top: 10,
-        right: 10,
-        backgroundColor: '#FF6F61',
-    },
-    selectedSchedule: {
-        backgroundColor: '#4A90E2',
-        padding: 10,
-        borderRadius: 10,
-        marginBottom: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-    },
-    selectedScheduleText: {
-        fontSize: 16,
-        color: '#FFF',
-    },
-    selectedScheduleDetails: {
-        flex: 1,
-    },
-    selectedDoctorImage: {
-        width: 50,
-        height: 50,
-        borderRadius: 25,
-        marginBottom: 10,
-    },
-    selectedScheduleDetails: {
-        flex: 1,
-    },
-    selectedScheduleItemTitle: {
-        fontSize: 16,
-        color: '#FFF',
-    },
-    myReminders: {
-        marginBottom: 20,
-        paddingHorizontal: 20,
-        paddingVertical: 20,
-        backgroundColor: '#161622',
-        borderRadius: 20,
-        elevation: 5,
-        overflow: 'hidden',
-        width: '90%',
-        marginLeft: 'auto',
-        marginRight: 'auto',
-    },
-    myRemindersHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    myRemindersTitle: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#FFF',
-    },
-    myRemindersText: {
-        fontSize: 14,
-        color: '#BBB',
-    },
-
-  
+  modalTime: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
+  modalDoctorImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 10,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginVertical: 20,
+  },
+  modalButtonDone: {
+    backgroundColor: '#4CAF50',
+    padding: 10,
+    borderRadius: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    marginRight: 5,
+  },
+  modalButtonCancel: {
+    backgroundColor: '#F44336',
+    padding: 10,
+    borderRadius: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+    marginLeft: 5,
+  },
+  modalButtonText: {
+    color: '#FFF',
+    marginLeft: 5,
+  },
+  modalCloseButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+  medContainer: {
+    marginTop: 20,
+  },
+  myReminders: {
+    marginTop: 20,
+  },
+  healthstats: {
+    marginTop: 20,
+  },
 });
-
